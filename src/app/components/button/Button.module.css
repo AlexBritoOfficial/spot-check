@@ -1,0 +1,11 @@
+.div {
+  background: var(--color-accent);
+  border-radius: 9999px;
+}
+
+.button {
+  background: var(--color-accent);
+  border-radius: 9999px;
+  font-family: var(--font-archivo-black);
+  padding: 10px 20px;
+}

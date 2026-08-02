@@ -4,5 +4,5 @@ export const archivo_black = Archivo_Black({
   subsets: ["latin"],
   weight: "400",
   display: "swap",
-  variable: "--archivo_black_spot_check_nav_span",
+  variable: "--font-archivo-black",
 });

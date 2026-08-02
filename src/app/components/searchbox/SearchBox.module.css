@@ -1,0 +1,21 @@
+.div {
+  background: var(--color-border);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 8px;
+}
+.input {
+  background: transparent;
+  border: none;
+  caret-color: var(--color-text);
+}
+
+.icon {
+  color: var(--color-text-muted);
+}
+
+.input:focus {
+  outline: none;
+}

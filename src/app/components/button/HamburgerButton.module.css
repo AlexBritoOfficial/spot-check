@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 2rem;
-  height: 1.5rem;
+  width: 1.5rem; /* was 2rem */
+  height: 1.125rem; /* was 1.5rem — keeps the same aspect ratio */
   padding: 0;
   background: none;
   border: none;
@@ -13,9 +13,9 @@
 .bar {
   display: block;
   width: 100%;
-  height: 3px;
+  height: 2px; /* was 3px */
   border-radius: 2px;
-  background-color: white;
+  background-color: var(--color-text);
   transition:
     transform 0.3s ease,
     opacity 0.3s ease;

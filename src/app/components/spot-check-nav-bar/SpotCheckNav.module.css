@@ -1,5 +1,4 @@
 .navbar {
-  font-family: var(--archivo_black_spot_check_nav_span);
 }
 
 .div {
@@ -9,8 +8,29 @@
   align-items: center;
   gap: 16px;
   padding: 0px 20px;
-  background: oklch(0.21 0.014 260);
-  color: black;
-  border-bottom: 1px solid oklch(0.32 0.02 260);
+  background: var(--color-bg-nav);
+  border-bottom: 1px solid var(--color-border);
   z-index: 20;
+  justify-content: space-between;
+}
+
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.white {
+  font-family: var(--font-archivo-black);
+  color: var(--color-text);
+}
+
+.gold {
+  font-family: var(--font-archivo-black);
+  color: var(--color-accent);
 }
