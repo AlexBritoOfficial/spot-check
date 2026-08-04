@@ -1,0 +1,140 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-nav);
+  width: 380px;
+  border-radius: 16px;
+  padding: 18px;
+  gap: 5px;
+}
+
+/* firstrow: card title + close button */
+.firstrow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardTitle {
+  color: var(--color-text);
+  font-family: var(--font-archivo-black);
+}
+
+/* secondrow: pinned-location hint */
+.secondrow {
+  display: flex;
+  flex-direction: row;
+}
+
+.pinned {
+  color: var(--color-text-form-fields);
+  font-size: 12px;
+}
+
+/* thirdrow: image placeholder */
+.thirdrow {
+  display: flex;
+  flex-direction: row;
+}
+
+.addimage {
+  height: 110px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px dashed var(--color-bg-nav);
+  background-image: url("../../../assets/spot-photo-placeholder.png");
+}
+
+/* fourthrow: spot-name form */
+.fourthrow {
+  display: flex;
+  flex-direction: column;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.spotName {
+  color: var(--color-text-form-fields);
+  font-family: var(--font-archivo-black);
+  font-size: 12px;
+}
+
+.spotNameDiv {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: var(--color-border);
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.spotNameDiv:focus-within {
+  border-color: var(--color-accent);
+}
+
+.spotNameInput {
+  background: transparent;
+  border: none;
+  width: 100%;
+  height: 100%;
+  caret-color: var(--color-text);
+  color: var(--color-text);
+  font-family: var(--font-archivo-black);
+  flex: 1;
+  font-size: 14px;
+}
+
+.spotNameInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.spotNameInput:focus {
+  outline: none;
+}
+
+.spotType {
+  color: var(--color-text-form-fields);
+  font-family: var(--font-archivo-black);
+  font-size: 12px;
+}
+
+/* Shared pill styling — used by both Spot Type (single-select radios)
+   and Spot Features (multi-select checkboxes). One source of truth:
+   change the pill look here and both groups update together.
+   flex-wrap lets the 5 feature pills flow onto a second line. */
+.pillRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  border-radius: 16px;
+  padding: 6px 12px;
+  background: var(--color-border);
+  cursor: pointer;
+  font-family: var(--font-archivo-black);
+  color: var(--color-text);
+  font-size: 12.5px;
+}
+
+.pill input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.pill:has(input:checked) {
+  background: var(--color-accent);
+  color: var(--color-bg-nav); /* text contrast on the gold */
+}
