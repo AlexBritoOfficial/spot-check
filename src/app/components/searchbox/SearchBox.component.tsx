@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import styles from "./SearchBox.module.css";
 import { Search } from "lucide-react";
 
 function SearchBox() {
   return (
-    <div className={styles.div}>
+    <div className={styles.searchBox}>
       <Search className={styles.icon} />
-      <input className={styles.input} />
+      <input
+        placeholder="SEARCH A SPOT..."
+        type="search"
+        className={styles.input}
+        onChange={() => {}}
+        aria-label="Search a spot"
+      />
     </div>
   );
 }
