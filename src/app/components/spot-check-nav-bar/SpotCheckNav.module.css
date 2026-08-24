@@ -1,0 +1,36 @@
+.navbar {
+}
+
+.div {
+  height: 64px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0px 20px;
+  background: var(--color-bg-nav);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 20;
+  justify-content: space-between;
+}
+
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.white {
+  font-family: var(--font-archivo-black);
+  color: var(--color-text);
+}
+
+.gold {
+  font-family: var(--font-archivo-black);
+  color: var(--color-accent);
+}
