@@ -6,4 +6,5 @@
   --color-border: oklch(0.32 0.02 260); /* borders + search field bg */
   --color-text-muted: oklch(0.7 0.02 260); /* placeholder / search icon */
   --color-text: white; /* primary text, caret, hamburger bars */
+  --color-text-form-fields: oklch(0.7 0.02 260);
 }

@@ -2,9 +2,9 @@
 import { useState } from "react";
 
 import styles from "./SpotCheckNav.module.css";
-import HamburgerButton from "../button/HamburgerButton.component";
+import HamburgerButton from "../button/hamburgerbutton/HamburgerButton.component";
 import SearchBox from "../searchbox/SearchBox.component";
-import Button from "../button/Button.component";
+import AddNewSpotButton from "../button/addnewspotbutton/AddNewSpotButton.component";
 
 export default function SpotCheckNav() {
   return (
@@ -17,7 +17,7 @@ export default function SpotCheckNav() {
         </div>
         <SearchBox />
       </div>
-      <Button name="+ Add Spot" />
+      <AddNewSpotButton name="+ Add Spot" />
     </div>
   );
 }
