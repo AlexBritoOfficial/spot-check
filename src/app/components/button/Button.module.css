@@ -1,0 +1,32 @@
+.button {
+  border: none;
+  border-radius: 10px;
+  height: 42px;
+  padding: 0 20px;
+  font-family: var(--font-archivo-black);
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+/* Filled/gold — Add Spot, Save spot, Directions */
+.primary {
+  background: var(--color-accent);
+  color: var(--color-bg-nav);
+  font-weight: 800;
+}
+
+.primary:hover {
+  filter: brightness(1.08);
+}
+
+/* Bordered/transparent — Cancel, Edit, Reviews */
+.outline {
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.outline:hover {
+  background: var(--color-border);
+}

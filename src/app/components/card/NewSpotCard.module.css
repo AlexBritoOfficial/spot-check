@@ -42,8 +42,35 @@
   height: 110px;
   width: 100%;
   border-radius: 10px;
-  border: 1px dashed var(--color-bg-nav);
-  background-image: url("../../../assets/spot-photo-placeholder.png");
+  border: 1px dashed var(--color-text-muted);
+  background: var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.addImageText {
+  font-family: var(--font-archivo-black);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+}
+
+.browseFile {
+  font-size: 11px;
+  text-decoration: underline;
+  color: var(--color-text-muted);
+}
+
+.hiddenFileInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
 
 /* fourthrow: spot-name form */
@@ -137,4 +164,53 @@
 .pill:has(input:checked) {
   background: var(--color-accent);
   color: var(--color-bg-nav); /* text contrast on the gold */
+}
+
+/** Difficulty Dropdown **/
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--color-border);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M3 5L7 9L11 5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-archivo-black);
+  font-size: 14px;
+  padding: 10px 36px 10px 12px;
+  width: 100%;
+}
+
+.select:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+
+.select option {
+  background: var(--color-bg-nav);
+  color: var(--color-text);
+}
+
+/** Spot Description Textarea **/
+.textarea {
+  width: 100%;
+  resize: none;
+  background: var(--color-border);
+  color: var(--color-text);
+  font-family: var(--font-archivo-black);
+  padding: 10px;
+}
+
+.textarea::placeholder {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.textarea:focus {
+  border-color: var(--color-accent);
+  outline: none;
 }

@@ -1,6 +1,8 @@
 "use client";
 
+import Button from "../button/Button.component";
 import CloseButton from "../button/closebutton/CloseButton.component";
+import StarRating from "../starrating/StarRating";
 import styles from "./NewSpotCard.module.css";
 
 function NewSpotCard() {
@@ -20,7 +22,16 @@ function NewSpotCard() {
 
       {/* Image area: placeholder box for the spot photo upload */}
       <div className={styles.thirdrow}>
-        <div className={styles.addimage}></div>
+        <label htmlFor="photo" className={styles.addimage}>
+          <span className={styles.addImageText}>+ ADD PHOTO</span>
+          <span className={styles.browseFile}>Browse file</span>
+          <input
+            id="photo"
+            type="file"
+            accept="image/*"
+            className={styles.hiddenFileInput}
+          />
+        </label>
       </div>
 
       {/* Form section: all the editable fields for the new spot */}
@@ -113,6 +124,29 @@ function NewSpotCard() {
               SKATEPARK
             </label>
           </div>
+         
+         {/** Difficulty Dropbox */}
+          <label htmlFor="difficulty" className={styles.spotType}>Difficulty</label>
+          <select id="difficulty" className={styles.select} required>
+            <option value="beginner">Beginner </option>
+            <option value="intermediate">Intermediate </option>
+            <option value="advanced">Advanced</option>
+            <option value="pro">Pro </option>
+          </select>
+
+          {/*** Description */}
+          <label className={styles.spotType}>Description</label>
+          <textarea className={styles.textarea} name="description" rows={3} placeholder="What makes this spot worth skating?"></textarea>
+
+          {/* Rating: static for now, no spot exists yet to have a rating */}
+          <h5 className={styles.spotType}>Rating</h5>
+          <StarRating rating={0} />
+
+        <div className={styles.actionRow}>
+            <Button label="Save Spot" variant="primary" grow={1.3} />
+            <Button label="Cancel" variant="outline" grow={1} />
+        </div>
+        
         </div>
       </div>
     </div>
