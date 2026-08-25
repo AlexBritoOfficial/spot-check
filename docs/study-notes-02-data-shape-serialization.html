@@ -1,14 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SkateSpots Field Manual №02 — Data: Shape, Serialization &amp; the Model</title>
 <style>
-  /* ============================================================
-     SkateSpots Field Manual №02 — design tokens
-     Palette derived from the app's own OKLCH tokens (matches №01).
-     ============================================================ */
   :root {
     --ink:        oklch(0.16 0.012 260);
     --surface:    oklch(0.21 0.014 260);
@@ -19,35 +9,26 @@
     --accent:     oklch(0.80 0.17 85);
     --accent-ink: oklch(0.20 0.05 85);
     --accent-wash: oklch(0.80 0.17 85 / 0.12);
-
     --bug:     oklch(0.70 0.19 25);
     --concept: oklch(0.74 0.12 235);
     --gotcha:  oklch(0.78 0.16 60);
-
+    --pattern: oklch(0.75 0.14 305);
+    --pattern-wash: oklch(0.75 0.14 305 / 0.14);
     --font-display: "Archivo Black", system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-body: Georgia, "Iowan Old Style", Palatino, "Times New Roman", serif;
     --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
-
     --measure: 68ch;
     --radius: 10px;
     --shadow: 0 1px 0 oklch(1 0 0 / 0.03) inset, 0 8px 30px oklch(0 0 0 / 0.35);
   }
-
   @media (prefers-color-scheme: light) {
     :root {
-      --ink:        oklch(0.97 0.004 260);
-      --surface:    oklch(1 0 0);
-      --surface-2:  oklch(0.965 0.005 260);
-      --border:     oklch(0.88 0.01 260);
-      --text:       oklch(0.24 0.02 260);
-      --text-muted: oklch(0.48 0.02 260);
-      --accent:     oklch(0.62 0.15 72);
-      --accent-ink: oklch(0.99 0.02 85);
-      --accent-wash: oklch(0.62 0.15 72 / 0.10);
-      --bug:     oklch(0.55 0.20 27);
-      --concept: oklch(0.52 0.14 240);
-      --gotcha:  oklch(0.58 0.15 62);
+      --ink: oklch(0.97 0.004 260); --surface: oklch(1 0 0); --surface-2: oklch(0.965 0.005 260);
+      --border: oklch(0.88 0.01 260); --text: oklch(0.24 0.02 260); --text-muted: oklch(0.48 0.02 260);
+      --accent: oklch(0.62 0.15 72); --accent-ink: oklch(0.99 0.02 85); --accent-wash: oklch(0.62 0.15 72 / 0.10);
+      --bug: oklch(0.55 0.20 27); --concept: oklch(0.52 0.14 240); --gotcha: oklch(0.58 0.15 62);
+      --pattern: oklch(0.53 0.16 300); --pattern-wash: oklch(0.53 0.16 300 / 0.10);
       --shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 10px 30px oklch(0.5 0.05 260 / 0.10);
     }
   }
@@ -56,6 +37,7 @@
     --border: oklch(0.88 0.01 260); --text: oklch(0.24 0.02 260); --text-muted: oklch(0.48 0.02 260);
     --accent: oklch(0.62 0.15 72); --accent-ink: oklch(0.99 0.02 85); --accent-wash: oklch(0.62 0.15 72 / 0.10);
     --bug: oklch(0.55 0.20 27); --concept: oklch(0.52 0.14 240); --gotcha: oklch(0.58 0.15 62);
+    --pattern: oklch(0.53 0.16 300); --pattern-wash: oklch(0.53 0.16 300 / 0.10);
     --shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 10px 30px oklch(0.5 0.05 260 / 0.10);
   }
   :root[data-theme="dark"] {
@@ -63,238 +45,104 @@
     --border: oklch(0.34 0.02 260); --text: oklch(0.94 0.008 260); --text-muted: oklch(0.72 0.02 260);
     --accent: oklch(0.80 0.17 85); --accent-ink: oklch(0.20 0.05 85); --accent-wash: oklch(0.80 0.17 85 / 0.12);
     --bug: oklch(0.70 0.19 25); --concept: oklch(0.74 0.12 235); --gotcha: oklch(0.78 0.16 60);
+    --pattern: oklch(0.75 0.14 305); --pattern-wash: oklch(0.75 0.14 305 / 0.14);
     --shadow: 0 1px 0 oklch(1 0 0 / 0.03) inset, 0 8px 30px oklch(0 0 0 / 0.35);
   }
-
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
-
-  body {
-    margin: 0;
-    background: var(--ink);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 18px;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  #progress {
-    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
-    background: var(--accent); z-index: 100; transition: width 0.1s linear;
-  }
-
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--font-body); font-size: 18px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  #progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: var(--accent); z-index: 100; transition: width 0.1s linear; }
   .shell { display: grid; grid-template-columns: 1fr; max-width: 1180px; margin: 0 auto; }
-  @media (min-width: 960px) {
-    .shell { grid-template-columns: 260px minmax(0, 1fr); gap: 48px; padding-right: 32px; }
-  }
-
-  .masthead {
-    grid-column: 1 / -1;
-    padding: 56px 24px 40px;
-    border-bottom: 1px solid var(--border);
-    background:
-      radial-gradient(120% 80% at 100% 0%, var(--accent-wash), transparent 60%),
-      var(--ink);
-  }
+  @media (min-width: 960px) { .shell { grid-template-columns: 260px minmax(0, 1fr); gap: 48px; padding-right: 32px; } }
+  .masthead { grid-column: 1 / -1; padding: 56px 24px 40px; border-bottom: 1px solid var(--border); background: radial-gradient(120% 80% at 100% 0%, var(--accent-wash), transparent 60%), var(--ink); }
   .masthead .wrap { max-width: 1180px; margin: 0 auto; }
-  .wordmark {
-    font-family: var(--font-display); font-weight: 900; letter-spacing: 0.02em;
-    font-size: 15px; text-transform: uppercase;
-  }
+  .wordmark { font-family: var(--font-display); font-weight: 900; letter-spacing: 0.02em; font-size: 15px; text-transform: uppercase; }
   .wordmark .gold { color: var(--accent); }
-  .kicker {
-    font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.22em;
-    font-size: 12px; color: var(--text-muted); margin: 28px 0 14px;
-  }
-  .masthead h1 {
-    font-family: var(--font-display); font-weight: 800;
-    font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 0.98; letter-spacing: -0.02em;
-    text-transform: uppercase; margin: 0; text-wrap: balance; max-width: 18ch;
-  }
+  .kicker { font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.22em; font-size: 12px; color: var(--text-muted); margin: 28px 0 14px; }
+  .masthead h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 0.98; letter-spacing: -0.02em; text-transform: uppercase; margin: 0; text-wrap: balance; max-width: 18ch; }
   .masthead h1 .amp { color: var(--accent); font-family: var(--font-body); font-style: italic; text-transform: none; font-weight: 400; }
-  .masthead .lede {
-    font-size: 1.15rem; color: var(--text-muted); max-width: 62ch; margin: 22px 0 0;
-  }
-  .meta-row {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px;
-    font-family: var(--font-ui); font-size: 13px;
-  }
-  .meta-row span {
-    border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; color: var(--text-muted);
-  }
-
+  .masthead .lede { font-size: 1.15rem; color: var(--text-muted); max-width: 62ch; margin: 22px 0 0; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; font-family: var(--font-ui); font-size: 13px; }
+  .meta-row span { border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; color: var(--text-muted); }
   nav.toc { display: none; }
   @media (min-width: 960px) {
-    nav.toc {
-      display: block; position: sticky; top: 0; align-self: start;
-      max-height: 100vh; overflow-y: auto; padding: 40px 0 40px 24px;
-      font-family: var(--font-ui);
-    }
-    nav.toc .toc-title {
-      text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px;
-      color: var(--text-muted); margin-bottom: 14px;
-    }
-    nav.toc .toc-part {
-      text-transform: uppercase; letter-spacing: 0.14em; font-size: 10px;
-      color: var(--accent); margin: 18px 0 6px 10px; font-weight: 700;
-    }
+    nav.toc { display: block; position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: 40px 0 40px 24px; font-family: var(--font-ui); }
+    nav.toc .toc-title { text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
     nav.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-    nav.toc a {
-      display: flex; gap: 10px; align-items: baseline; padding: 6px 10px; border-radius: 7px;
-      text-decoration: none; color: var(--text-muted); font-size: 13.5px; line-height: 1.35;
-      border-left: 2px solid transparent; transition: color 0.15s, background 0.15s;
-    }
+    nav.toc a { display: flex; gap: 10px; align-items: baseline; padding: 6px 10px; border-radius: 7px; text-decoration: none; color: var(--text-muted); font-size: 13.5px; line-height: 1.35; border-left: 2px solid transparent; transition: color 0.15s, background 0.15s; }
     nav.toc a .num { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 700; min-width: 20px; }
     nav.toc a:hover { color: var(--text); background: var(--surface); }
     nav.toc a.active { color: var(--text); background: var(--accent-wash); border-left-color: var(--accent); }
+    nav.toc .toc-part { margin-top: 14px; padding: 0 10px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 10.5px; color: var(--accent); }
   }
-
   .toc-mobile { padding: 24px; border-bottom: 1px solid var(--border); font-family: var(--font-ui); }
   @media (min-width: 960px) { .toc-mobile { display: none; } }
   .toc-mobile summary { cursor: pointer; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; font-size: 13px; }
   .toc-mobile ol { columns: 2; font-size: 14px; padding-left: 18px; }
   .toc-mobile a { color: var(--text-muted); text-decoration: none; }
-
   main { padding: 8px 24px 96px; min-width: 0; }
   @media (min-width: 960px) { main { padding: 48px 0 120px; } }
-
-  .part-divider {
-    font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.04em;
-    font-size: 13px; color: var(--accent); margin: 48px 0 0; padding-top: 40px;
-    border-top: 2px solid var(--accent-wash); display: flex; align-items: baseline; gap: 12px;
-  }
-  .part-divider:first-child { border-top: none; padding-top: 0; margin-top: 0; }
-  .part-divider .pn { font-size: 2rem; line-height: 1; }
-  .part-divider small { display: block; font-family: var(--font-ui); text-transform: none; letter-spacing: 0; color: var(--text-muted); font-size: 14px; font-weight: 400; margin-top: 4px; }
-
+  .part-divider { display: flex; align-items: baseline; gap: 16px; padding: 34px 0 10px; font-family: var(--font-ui); }
+  .part-divider .pn { font-family: var(--font-display); font-size: 1.6rem; color: var(--pattern); }
+  .part-divider div { font-weight: 800; font-size: 1.05rem; color: var(--text); }
+  .part-divider small { display: block; font-weight: 400; color: var(--text-muted); font-size: 13px; margin-top: 2px; }
   .chapter { padding: 40px 0; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
-  .chapter.first { border-top: none; }
+  .chapter:first-of-type { border-top: none; }
   .chapter > * { max-width: var(--measure); }
   .chapter-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 6px; }
-  .chapter-num {
-    font-family: var(--font-display); font-size: 2.6rem; line-height: 1; color: var(--accent);
-    font-variant-numeric: tabular-nums; letter-spacing: -0.03em;
-  }
-  .chapter h2 {
-    font-family: var(--font-ui); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.01em;
-    margin: 0; text-wrap: balance; color: var(--text);
-  }
-  .chapter h3 {
-    font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em;
-    font-size: 12.5px; color: var(--text-muted); margin: 30px 0 8px;
-    display: flex; align-items: center; gap: 8px;
-  }
+  .chapter-num { font-family: var(--font-display); font-size: 2.6rem; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+  .chapter h2 { font-family: var(--font-ui); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.01em; margin: 0; text-wrap: balance; color: var(--text); }
+  .chapter h3 { font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em; font-size: 12.5px; color: var(--text-muted); margin: 26px 0 8px; display: flex; align-items: center; gap: 8px; }
   .chapter h3::before { content: ""; width: 14px; height: 2px; background: var(--accent); border-radius: 2px; }
   .chapter p { margin: 10px 0; }
-  .chapter ul, .chapter ol { max-width: var(--measure); }
-  .chapter a.ref { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-wash); }
-  .chapter a.ref:hover { border-bottom-color: var(--accent); }
-
   .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; font-family: var(--font-ui); }
-  .tag {
-    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-    padding: 4px 10px; border-radius: 6px; border: 1px solid currentColor;
-    display: inline-flex; align-items: center; gap: 6px;
-  }
+  .tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 6px; border: 1px solid currentColor; display: inline-flex; align-items: center; gap: 6px; }
   .tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-  .tag.bug { color: var(--bug); }
-  .tag.concept { color: var(--concept); }
-  .tag.gotcha { color: var(--gotcha); }
-
-  pre {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 16px 18px; overflow-x: auto; margin: 14px 0; position: relative;
-    box-shadow: var(--shadow);
-  }
+  .tag.bug { color: var(--bug); } .tag.concept { color: var(--concept); } .tag.gotcha { color: var(--gotcha); } .tag.pattern { color: var(--pattern); }
+  .keywords { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 4px; font-family: var(--font-ui); }
+  .keywords .kw-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-right: 2px; }
+  .keywords .kw { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 9px; color: var(--text); }
+  pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; margin: 14px 0; position: relative; box-shadow: var(--shadow); }
   pre code { font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; color: var(--text); }
-  :not(pre) > code {
-    font-family: var(--font-mono); font-size: 0.86em; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; color: var(--text);
-  }
-  .copy-btn {
-    position: absolute; top: 8px; right: 8px; font-family: var(--font-ui); font-size: 11px;
-    background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border);
-    border-radius: 6px; padding: 4px 9px; cursor: pointer; opacity: 0; transition: opacity 0.15s;
-  }
+  :not(pre) > code { font-family: var(--font-mono); font-size: 0.86em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; color: var(--text); }
+  .copy-btn { position: absolute; top: 8px; right: 8px; font-family: var(--font-ui); font-size: 11px; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px; cursor: pointer; opacity: 0; transition: opacity 0.15s; }
   pre:hover .copy-btn { opacity: 1; }
   .copy-btn:hover { color: var(--text); border-color: var(--accent); }
   .copy-btn:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  .callout {
-    border-left: 3px solid var(--accent); background: var(--accent-wash);
-    border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin: 18px 0;
-    font-family: var(--font-ui); font-size: 15px;
-  }
+  .callout { border-left: 3px solid var(--accent); background: var(--accent-wash); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin: 18px 0; font-family: var(--font-ui); font-size: 15px; }
   .callout strong { color: var(--accent); }
-  .callout.gotcha { border-left-color: var(--gotcha); background: oklch(0.78 0.16 60 / 0.1); }
+  .callout.gotcha { border-left-color: var(--gotcha); background: color-mix(in oklch, var(--gotcha) 14%, transparent); }
   .callout.gotcha strong { color: var(--gotcha); }
-
-  .lab {
-    border: 1px dashed var(--border); border-radius: var(--radius); padding: 20px;
-    margin: 18px 0; background:
-      repeating-linear-gradient(45deg, transparent, transparent 9px, var(--surface) 9px, var(--surface) 10px),
-      var(--ink);
-  }
-  .lab-label {
-    font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.14em;
-    font-size: 10.5px; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-  }
-  .lab-label::before { content: "▶"; color: var(--accent); font-size: 8px; }
-
-  .tbl-wrap { overflow-x: auto; margin: 16px 0; max-width: var(--measure); }
+  .idea { border-left: 3px solid var(--pattern); background: var(--pattern-wash); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin: 18px 0; font-family: var(--font-ui); font-size: 15px; }
+  .idea .idea-label { display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 700; color: var(--pattern); margin-bottom: 6px; }
+  .idea .idea-label::before { content: "◆"; font-size: 9px; }
+  .tbl-wrap { overflow-x: auto; margin: 16px 0; }
   table { border-collapse: collapse; width: 100%; font-family: var(--font-ui); font-size: 14px; }
   th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
   th { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; color: var(--text-muted); }
-  td code { white-space: nowrap; }
-
-  .study-links {
-    list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 8px;
-    font-family: var(--font-ui); font-size: 14px; max-width: var(--measure);
-  }
+  .study-links { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-ui); font-size: 14px; }
   .study-links li { display: flex; gap: 10px; align-items: baseline; }
   .study-links li::before { content: "↗"; color: var(--accent); }
   .study-links a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); }
   .study-links a:hover { border-bottom-color: var(--accent); color: var(--accent); }
-
-  /* flow diagram */
-  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 16px 0; max-width: var(--measure); }
-  .flow .node {
-    flex: 1; min-width: 150px; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px; font-family: var(--font-ui); font-size: 13px;
-  }
-  .flow .node .cap { text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; color: var(--accent); margin-bottom: 6px; }
-  .flow .node code { font-size: 12px; word-break: break-word; }
-  .flow .arrow { align-self: center; color: var(--accent); font-size: 22px; padding: 0 10px; }
-  @media (max-width: 620px) { .flow .arrow { transform: rotate(90deg); padding: 6px 0; align-self: center; } .flow { flex-direction: column; } }
-
-  /* json round-trip lab */
-  .rt { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 620px) { .rt { grid-template-columns: 1fr; } }
-  .rt .pane { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-  .rt .pane .cap { font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
-  .rt pre { box-shadow: none; margin: 0; background: transparent; border: none; padding: 0; }
-  .rt-run {
-    margin-top: 14px; font-family: var(--font-ui); font-size: 13px; font-weight: 700;
-    background: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px;
-    padding: 9px 18px; cursor: pointer;
-  }
-  .rt-run:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .rt-note { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-top: 10px; min-height: 1.4em; }
-
-  .tree { font-family: var(--font-mono); font-size: 13px; line-height: 1.9; color: var(--text-muted); white-space: pre; overflow-x: auto; }
+  .glossary { display: flex; flex-direction: column; gap: 14px; margin: 18px 0; }
+  .glossary dt { font-family: var(--font-ui); font-weight: 800; color: var(--text); font-size: 15px; }
+  .glossary dd { margin: 3px 0 0; color: var(--text-muted); font-size: 15px; }
+  .lab { border: 1px dashed var(--border); border-radius: var(--radius); padding: 20px; margin: 18px 0; background: repeating-linear-gradient(45deg, transparent, transparent 9px, var(--surface) 9px, var(--surface) 10px), var(--ink); }
+  .lab-label { font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.14em; font-size: 10.5px; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .lab-label::before { content: "▶"; color: var(--accent); font-size: 8px; }
+  .tree { font-family: var(--font-mono); font-size: 13px; line-height: 1.9; color: var(--text-muted); white-space: pre-wrap; }
   .tree b { color: var(--text); }
   .tree .k { color: var(--accent); }
-
-  .quiz details {
-    border: 1px solid var(--border); border-radius: var(--radius); margin: 10px 0;
-    background: var(--surface); overflow: hidden; max-width: var(--measure);
-  }
-  .quiz summary {
-    cursor: pointer; padding: 14px 18px; font-family: var(--font-ui); font-weight: 600; font-size: 15px;
-    list-style: none; display: flex; gap: 12px; align-items: baseline;
-  }
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 16px 0; }
+  .flow .node { flex: 1; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: var(--font-ui); font-size: 13px; }
+  .flow .node .cap { text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; color: var(--accent); margin-bottom: 6px; }
+  .flow .node code { font-size: 12px; }
+  .flow .arrow { align-self: center; color: var(--accent); font-size: 22px; padding: 0 10px; }
+  @media (max-width: 620px) { .flow .arrow { transform: rotate(90deg); padding: 6px 0; align-self: center; } .flow { flex-direction: column; } }
+  .quiz details { border: 1px solid var(--border); border-radius: var(--radius); margin: 10px 0; background: var(--surface); overflow: hidden; }
+  .quiz summary { cursor: pointer; padding: 14px 18px; font-family: var(--font-ui); font-weight: 600; font-size: 15px; list-style: none; display: flex; gap: 12px; align-items: baseline; }
   .quiz summary::-webkit-details-marker { display: none; }
   .quiz summary::before { content: "Q" counter(q); counter-increment: q; color: var(--accent); font-family: var(--font-display); font-size: 13px; }
   .quiz { counter-reset: q; }
@@ -302,41 +150,9 @@
   .quiz .answer { padding: 4px 18px 16px 46px; font-size: 15px; color: var(--text-muted); }
   .quiz summary::after { content: "▸"; margin-left: auto; color: var(--text-muted); transition: transform 0.15s; }
   .quiz details[open] summary::after { transform: rotate(90deg); }
-
-  footer {
-    grid-column: 1 / -1; border-top: 1px solid var(--border); padding: 32px 24px;
-    font-family: var(--font-ui); font-size: 13px; color: var(--text-muted); text-align: center;
-  }
+  footer { grid-column: 1 / -1; border-top: 1px solid var(--border); padding: 32px 24px; font-family: var(--font-ui); font-size: 13px; color: var(--text-muted); text-align: center; }
   footer .wordmark { display: block; margin-bottom: 8px; }
-
-  /* ============================================================
-     PRINT — force the light palette, drop chrome, avoid ugly breaks
-     ============================================================ */
-  @media print {
-    :root {
-      --ink: #fff; --surface: #f6f7f9; --surface-2: #eef0f3; --border: #cfd4dc;
-      --text: #14161a; --text-muted: #55606e; --accent: #9a6b00; --accent-ink: #fff;
-      --accent-wash: rgba(154,107,0,0.08);
-      --bug: #b0202a; --concept: #1f5fa8; --gotcha: #9a6a10;
-      --shadow: none;
-    }
-    body { background: #fff; font-size: 11.5pt; line-height: 1.5; }
-    #progress, .copy-btn, nav.toc, .toc-mobile, .rt-run, .rt-note { display: none !important; }
-    .shell { display: block; max-width: none; margin: 0; padding: 0; }
-    main { padding: 0 12px; }
-    .masthead { padding: 12px 12px 20px; background: #fff; }
-    .masthead h1 { font-size: 30pt; }
-    a { color: inherit; text-decoration: none; }
-    .lab, .callout, pre, .tbl-wrap, .flow, .quiz details, .rt { break-inside: avoid; }
-    .chapter { break-inside: avoid-page; padding: 20px 0; }
-    .part-divider { break-before: page; }
-    .part-divider:first-child { break-before: avoid; }
-    .quiz details { open: true; }
-    .quiz details .answer { display: block; }
-  }
 </style>
-</head>
-<body>
 
 <div id="progress"></div>
 
@@ -344,43 +160,31 @@
   <div class="wrap">
     <div class="wordmark">SPOT <span class="gold">CHECK</span></div>
     <div class="kicker">SkateSpots Field Manual · №02</div>
-    <h1>Data <span class="amp">—</span> Shape, Serialization &amp; the Model</h1>
-    <p class="lede">Everything we reasoned through while designing the <code>Spot</code> type and building <code>mockSpots</code>: what a data shape is, why it's a <em>contract</em>, what actually survives a trip through JSON, and how one skate spot lives at three different layers — the world, the wire, and the database.</p>
-    <div class="meta-row">
-      <span>11 chapters · 3 parts</span>
-      <span>Live JSON lab</span>
-      <span>Self-test included</span>
-      <span>Phase 1 — Designing to a data shape</span>
-    </div>
+    <h1>Data <span class="amp">—</span> Shape &amp; the Model</h1>
+    <p class="lede">Everything reasoned through while designing the <code>Spot</code> type and building <code>mockSpots</code>: what a data shape is, why it's a <em>contract</em>, what actually survives a trip through JSON, and how one skate spot lives at three different layers — the world, the wire, and the database.</p>
+    <div class="meta-row"><span>11 chapters</span><span>3 parts</span><span>Self-test</span><span>Phase 1 — The Spot type</span></div>
   </div>
 </header>
 
 <div class="shell">
   <nav class="toc" aria-label="Table of contents">
     <div class="toc-title">Contents</div>
-    <div class="toc-part">I · Serialization</div>
     <ol>
-      <li><a href="#c1"><span class="num">01</span> What serialization is</a></li>
-      <li><a href="#c2"><span class="num">02</span> JSON's tiny type vocabulary</a></li>
-      <li><a href="#c3"><span class="num">03</span> Dates don't survive the trip</a></li>
-      <li><a href="#c4"><span class="num">04</span> Location on the wire</a></li>
-    </ol>
-    <div class="toc-part">II · Modeling the Spot</div>
-    <ol>
-      <li><a href="#c5"><span class="num">05</span> id: number or string</a></li>
+      <li class="toc-part">Part I — Serialization</li>
+      <li><a href="#c1"><span class="num">01</span> What serialization means</a></li>
+      <li><a href="#c2"><span class="num">02</span> JSON's type vocabulary</a></li>
+      <li><a href="#c3"><span class="num">03</span> Dates don't survive</a></li>
+      <li><a href="#c4"><span class="num">04</span> Location &amp; the lat/lng trap</a></li>
+      <li class="toc-part">Part II — Modeling the Spot</li>
+      <li><a href="#c5"><span class="num">05</span> id: number or string?</a></li>
       <li><a href="#c6"><span class="num">06</span> Union types as enums</a></li>
-      <li><a href="#c7"><span class="num">07</span> spot_type vs features</a></li>
-      <li><a href="#c8"><span class="num">08</span> Optional = the nullability contract</a></li>
-      <li><a href="#c9"><span class="num">09</span> Naming &amp; type/data lockstep</a></li>
-    </ol>
-    <div class="toc-part">III · Entity → Model</div>
-    <ol>
-      <li><a href="#c10"><span class="num">10</span> One spot, three representations</a></li>
-      <li><a href="#c11"><span class="num">11</span> The mapping &amp; where it transforms</a></li>
-    </ol>
-    <div class="toc-part">Appendices</div>
-    <ol>
-      <li><a href="#appendix"><span class="num">A</span> Working principles</a></li>
+      <li><a href="#c7"><span class="num">07</span> Category vs. attributes</a></li>
+      <li><a href="#c8"><span class="num">08</span> The nullability contract</a></li>
+      <li><a href="#c9"><span class="num">09</span> Naming lockstep</a></li>
+      <li class="toc-part">Part III — Entity → Model</li>
+      <li><a href="#c10"><span class="num">10</span> Three representations</a></li>
+      <li><a href="#c11"><span class="num">11</span> The mapping</a></li>
+      <li><a href="#glossary"><span class="num">A</span> Glossary</a></li>
       <li><a href="#quiz"><span class="num">B</span> Self-test</a></li>
       <li><a href="#links"><span class="num">C</span> Study links</a></li>
     </ol>
@@ -392,14 +196,15 @@
       <li><a href="#c1">Serialization</a></li>
       <li><a href="#c2">JSON types</a></li>
       <li><a href="#c3">Dates</a></li>
-      <li><a href="#c4">Location on the wire</a></li>
-      <li><a href="#c5">id: number/string</a></li>
+      <li><a href="#c4">Location</a></li>
+      <li><a href="#c5">id type</a></li>
       <li><a href="#c6">Union enums</a></li>
-      <li><a href="#c7">type vs features</a></li>
+      <li><a href="#c7">Category vs attrs</a></li>
       <li><a href="#c8">Nullability</a></li>
       <li><a href="#c9">Naming lockstep</a></li>
-      <li><a href="#c10">Three representations</a></li>
+      <li><a href="#c10">Three layers</a></li>
       <li><a href="#c11">The mapping</a></li>
+      <li><a href="#glossary">Glossary</a></li>
       <li><a href="#quiz">Self-test</a></li>
       <li><a href="#links">Study links</a></li>
     </ol>
@@ -407,18 +212,17 @@
 
   <main>
 
-    <!-- =========================================================
-         PART I — SERIALIZATION
-         ========================================================= -->
-    <div class="part-divider"><span class="pn">I</span><div>Serialization <small>What actually travels between server and browser</small></div></div>
+    <div class="part-divider"><span class="pn">I</span><div>Serialization<small>What actually travels between server and browser</small></div></div>
 
-    <!-- ============ 01 ============ -->
-    <section class="chapter first" id="c1">
+    <section class="chapter" id="c1">
       <div class="chapter-head"><span class="chapter-num">01</span><h2>What "serialization" actually means</h2></div>
       <div class="tags"><span class="tag concept">Concept</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">serialization</span><span class="kw">deserialization</span><span class="kw">wire shape</span></div>
 
-      <h3>The idea</h3>
-      <p>Your <code>Spot</code> lives in memory as a rich JavaScript object — it can hold a <code>Date</code>, nested objects, whatever. But a network can't send an "object." It can only send <strong>bytes</strong>, which for a web API means <strong>text</strong>. <strong>Serialization</strong> is turning your in-memory object into that flat text; <strong>deserialization</strong> (or parsing) is rebuilding an object from it on the other end.</p>
+      <h3>What</h3>
+      <p>A <code>Spot</code> lives in memory as a rich JavaScript object — it can hold a <code>Date</code>, nested objects, whatever. A network can't send an "object," only <strong>bytes</strong>, which for a web API means <strong>text</strong>.</p>
+
+      <h3>How</h3>
       <div class="flow">
         <div class="node"><div class="cap">In memory (server)</div><code>{ id: 1, created_at: Date }</code></div>
         <div class="arrow">→</div>
@@ -426,27 +230,33 @@
         <div class="arrow">→</div>
         <div class="node"><div class="cap">Parse (browser)</div><code>{ id: 1, created_at: "2026-…" }</code></div>
       </div>
-      <p>In JavaScript this pair is <code>JSON.stringify()</code> (object → text) and <code>JSON.parse()</code> (text → object). Your API does the first; TanStack Query does the second for you in Phase 7.</p>
+      <p>In JavaScript this pair is <code>JSON.stringify()</code> (object → text) and <code>JSON.parse()</code> (text → object).</p>
 
-      <div class="callout"><strong>The one law of UI-first:</strong> your mock <code>Spot</code> must look exactly like the object that comes out of <code>JSON.parse()</code> on the client — <em>not</em> the object that existed on the server before serialization. Those two are not the same, and Chapters 03–04 are the places they differ.</div>
+      <h3>Why</h3>
+      <p><strong>Serialization</strong> is turning an in-memory object into flat text; <strong>deserialization</strong> (parsing) rebuilds an object from it on the other end. Your API does the first; TanStack Query does the second for you in Phase 7.</p>
+      <div class="callout"><strong>The one law of UI-first:</strong> a mock <code>Spot</code> must look exactly like the object that comes out of <code>JSON.parse()</code> on the client — <em>not</em> the object that existed on the server before serialization. Those two are not the same, and Chapters 03–04 are where they differ.</div>
 
-      <h3>How to study</h3>
-      <p>Open DevTools console and run <code>JSON.parse(JSON.stringify(obj))</code> on any object you build. Whatever comes back is the "wire shape" — the only shape your UI ever actually sees.</p>
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        This is why mock data is only useful if it's shaped like the <em>wire</em>, not like your ideal in-memory model. A mock that's more "correct" than what the real API will actually send is a mock that lies to you the day you connect the real backend.
+      </div>
     </section>
 
-    <!-- ============ 02 ============ -->
     <section class="chapter" id="c2">
       <div class="chapter-head"><span class="chapter-num">02</span><h2>JSON's tiny type vocabulary</h2></div>
       <div class="tags"><span class="tag concept">Concept</span><span class="tag gotcha">Gotcha</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">JSON types</span><span class="kw">undefined vs null</span></div>
 
-      <h3>Why</h3>
-      <p>JSON only knows <strong>six</strong> value types. Everything you put in a <code>Spot</code> has to reduce to one of them, or it gets transformed / dropped on the way out:</p>
+      <h3>What</h3>
+      <p>JSON only knows <strong>six</strong> value types. Everything in a <code>Spot</code> has to reduce to one of them, or it gets transformed / dropped on the way out.</p>
+
+      <h3>How</h3>
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>JSON type</th><th>Your Spot field</th><th>Note</th></tr></thead>
           <tbody>
             <tr><td><code>string</code></td><td><code>name</code>, <code>city</code>, <code>created_at</code></td><td>Text in double quotes only</td></tr>
-            <tr><td><code>number</code></td><td><code>id</code>, <code>rating</code>, <code>lat</code>, <code>lng</code></td><td>IEEE-754 double — see Ch 05</td></tr>
+            <tr><td><code>number</code></td><td><code>id</code>, <code>rating</code>, <code>lat</code>, <code>lng</code></td><td>IEEE-754 double — Ch 05</td></tr>
             <tr><td><code>boolean</code></td><td><code>is_skateable</code></td><td><code>true</code> / <code>false</code></td></tr>
             <tr><td><code>null</code></td><td>an absent <code>photo</code></td><td>The only "empty" — no <code>undefined</code></td></tr>
             <tr><td><code>array</code></td><td><code>features</code></td><td>Ordered list</td></tr>
@@ -454,75 +264,60 @@
           </tbody>
         </table>
       </div>
-
-      <h3>The gotchas — what is NOT on that list</h3>
       <ul>
         <li><strong>No <code>Date</code></strong> — becomes a string (Ch 03).</li>
-        <li><strong>No <code>undefined</code></strong> — a key whose value is <code>undefined</code> is <em>silently omitted</em> from the output object entirely. This is why "optional" and "null" are different things (Ch 08).</li>
-        <li><strong>No enums, no classes, no functions, no <code>Map</code>/<code>Set</code></strong> — they flatten to plain objects or vanish.</li>
-        <li><strong>No <code>BigInt</code></strong> — <code>JSON.stringify</code> throws on it outright.</li>
+        <li><strong>No <code>undefined</code></strong> — a key whose value is <code>undefined</code> is <em>silently omitted</em> entirely. This is why "optional" and "null" are different things (Ch 08).</li>
+        <li><strong>No enums, classes, functions, <code>Map</code>/<code>Set</code></strong> — flatten to plain objects or vanish.</li>
+        <li><strong>No <code>BigInt</code></strong> — <code>JSON.stringify</code> throws on it.</li>
       </ul>
+
+      <h3>Why</h3>
+      <p>JSON was designed as a minimal, language-agnostic text format — it deliberately doesn't try to represent every JS runtime type, only the shapes common to essentially every language's data structures.</p>
       <div class="callout gotcha"><strong>Remember:</strong> "JSON is text with six shapes." Anything richer than those six is your responsibility to encode on the way out and rebuild on the way in.</div>
 
-      <h3>How to study</h3>
-      <p>In the console: <code>JSON.stringify({ a: undefined, b: null, c: new Date() })</code>. Watch <code>a</code> disappear, <code>b</code> stay, and <code>c</code> turn into a string. That single line teaches this whole chapter.</p>
-      <ul class="study-links">
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" target="_blank" rel="noopener">MDN — JSON (the whole object)</a></li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify" target="_blank" rel="noopener">MDN — JSON.stringify (what it drops &amp; transforms)</a></li>
-      </ul>
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        Try <code>JSON.stringify({ a: undefined, b: null, c: new Date() })</code> in a console once. Watch <code>a</code> disappear, <code>b</code> stay, <code>c</code> turn into a string — that single line is this whole chapter, and it explains why "optional" (Ch 08) and "transformed" (Ch 03) are two completely different concerns.
+      </div>
     </section>
 
-    <!-- ============ 03 ============ -->
     <section class="chapter" id="c3">
       <div class="chapter-head"><span class="chapter-num">03</span><h2>Dates don't survive the trip</h2></div>
       <div class="tags"><span class="tag bug">Bug-in-waiting</span><span class="tag concept">Concept</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">Date.toJSON()</span><span class="kw">ISO-8601</span><span class="kw">re-hydration</span></div>
 
-      <h3>What came up</h3>
-      <p>We typed <code>created_at</code> as <code>string</code>, not <code>Date</code>. That looked odd at first — it <em>is</em> a date. But it's correct, and here's the machinery.</p>
+      <h3>What</h3>
+      <p><code>created_at</code> is typed <code>string</code>, not <code>Date</code> — that looks odd at first (it <em>is</em> a date), but it's correct.</p>
 
-      <h3>Why</h3>
-      <p>A <code>Date</code> object has a hidden <code>.toJSON()</code> method. When <code>JSON.stringify</code> hits it, it calls that method, which returns an <strong>ISO-8601 string</strong> like <code>"2026-08-02T14:30:00.000Z"</code>. So by the time your spot reaches the browser, <code>created_at</code> is — and only ever was — a <strong>string</strong>. There is no <code>Date</code> on the client unless you rebuild one.</p>
+      <h3>How</h3>
+      <pre><code>// before — in memory
+{ id: 1, created_at: new Date() }
 
-      <div class="lab">
-        <div class="lab-label">Live: watch a Date become a string, then come back</div>
-        <div class="rt">
-          <div class="pane"><div class="cap">Before — in memory</div><pre><code id="rt-in">{
-  id: 1,
-  created_at: new Date(),
-  photo: undefined
-}</code></pre></div>
-          <div class="pane"><div class="cap">After — JSON.stringify()</div><pre><code id="rt-out">press Run →</code></pre></div>
-        </div>
-        <button class="rt-run" id="rt-btn" type="button">Run the round-trip</button>
-        <div class="rt-note" id="rt-note"></div>
-      </div>
-
-      <div class="callout"><strong>The honesty rule for mock data:</strong> because the real API sends a full ISO timestamp, your mock's <code>created_at</code> should be a full ISO string too — <code>"2026-08-02T14:30:00.000Z"</code>, not the date-only <code>"2026-08-02"</code>. A mock that's shaped differently from the API is a mock that lies, and the lie surfaces the day you swap in Phase 7.</p></div>
-
-      <h3>Solution — the pattern</h3>
+// after — JSON.stringify()
+{ "id": 1, "created_at": "2026-08-02T14:30:00.000Z" }</code></pre>
       <p>Keep the transport type a <code>string</code>. Convert to a <code>Date</code> only at the moment you need date <em>math</em> or formatting, right where you use it:</p>
-      <pre><code>// created_at stays a string everywhere it travels
-const created = new Date(spot.created_at);   // re-hydrate on demand
+      <pre><code>const created = new Date(spot.created_at);   // re-hydrate on demand
 created.toLocaleDateString();                // "8/2/2026"</code></pre>
 
-      <h3>How to study</h3>
-      <p>Run <code>new Date().toJSON()</code> in the console. Then <code>JSON.parse(JSON.stringify({ d: new Date() }))</code> and check <code>typeof result.d</code> — it's <code>"string"</code>. Prove the loss to yourself once and you'll never mistype a date field again.</p>
-      <ul class="study-links">
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toJSON" target="_blank" rel="noopener">MDN — Date.prototype.toJSON</a></li>
-        <li><a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener">ISO 8601 — the timestamp format</a></li>
-      </ul>
+      <h3>Why</h3>
+      <p>A <code>Date</code> object has a hidden <code>.toJSON()</code> method. When <code>JSON.stringify</code> hits it, it calls that method, which returns an <strong>ISO-8601 string</strong>. So by the time a spot reaches the browser, <code>created_at</code> is — and only ever was — a <strong>string</strong>. There is no <code>Date</code> on the client unless you rebuild one.</p>
+      <div class="callout"><strong>The honesty rule for mock data:</strong> because the real API sends a full ISO timestamp, mock <code>created_at</code> should be a full ISO string too — not a date-only string. A mock shaped differently from the API is a mock that lies, and the lie surfaces the day you swap in the real backend.</div>
+
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        This is the exact same lesson as Study Sheet 05, Item 5 (naming mismatches across a language/file boundary) wearing a different costume: a JS-native type (<code>Date</code>) simply doesn't exist on the other side of a serialization boundary. Any type richer than JSON's six needs an explicit, deliberate re-hydration step — it never survives by accident.
+      </div>
     </section>
 
-    <!-- ============ 04 ============ -->
     <section class="chapter" id="c4">
-      <div class="chapter-head"><span class="chapter-num">04</span><h2>Location on the wire — and the lat/lng order trap</h2></div>
+      <div class="chapter-head"><span class="chapter-num">04</span><h2>Location on the wire — the lat/lng order trap</h2></div>
       <div class="tags"><span class="tag concept">Concept</span><span class="tag gotcha">Gotcha</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">named object vs. array</span><span class="kw">coordinate order</span></div>
 
-      <h3>What came up</h3>
-      <p>We chose <code>lat_lng: { lat: number; lng: number }</code> instead of two loose columns or a raw array. Behind that small choice is one of the most bug-prone corners of the whole project.</p>
+      <h3>What</h3>
+      <p><code>lat_lng: { lat: number; lng: number }</code> was chosen over two loose columns or a raw array — a small choice guarding one of the most bug-prone corners of the project.</p>
 
-      <h3>Why a named object beats an array</h3>
-      <p>The database will store location as a PostGIS <em>point</em>, which an API can't send directly — it serializes to plain numbers. The question is only <em>how</em>. Three options:</p>
+      <h3>How</h3>
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>Shape</th><th>Looks like</th><th>Risk</th></tr></thead>
@@ -533,9 +328,6 @@ created.toLocaleDateString();                // "8/2/2026"</code></pre>
           </tbody>
         </table>
       </div>
-
-      <h3>The trap the named object saves you from</h3>
-      <p>Different tools disagree about coordinate order, and they do it silently — both values are just numbers, so nothing errors; your pin just lands in the wrong ocean.</p>
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>Tool</th><th>Order it expects</th></tr></thead>
@@ -545,29 +337,28 @@ created.toLocaleDateString();                // "8/2/2026"</code></pre>
           </tbody>
         </table>
       </div>
-      <div class="callout gotcha"><strong>Boston is <code>lat 42.36, lng -71.06</code>.</strong> Swap them and you get <code>lat -71, lng 42</code> — off the coast of Western Sahara. That's the exact class of bug the earlier <code>{ lat: 4, lng: 4 }</code> placeholder would have hidden: numbers that parse fine and point nowhere real. Naming the fields <code>lat</code> and <code>lng</code> means the order can never be ambiguous at the callsite.</div>
 
-      <h3>How to study</h3>
-      <p>Look up your four spots' real coordinates and confirm each lands in Boston on a map. Then read one line of the Leaflet quick-start and one line of the GeoJSON spec and note that they order coordinates <em>oppositely</em> — that contradiction is the thing to remember.</p>
-      <ul class="study-links">
-        <li><a href="https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.1" target="_blank" rel="noopener">GeoJSON RFC 7946 — position is [lng, lat]</a></li>
-        <li><a href="https://leafletjs.com/reference.html#latlng" target="_blank" rel="noopener">Leaflet — LatLng is (lat, lng)</a></li>
-        <li><a href="https://postgis.net/docs/ST_MakePoint.html" target="_blank" rel="noopener">PostGIS — ST_MakePoint(x=lng, y=lat)</a></li>
-      </ul>
+      <h3>Why</h3>
+      <p>The database stores location as a PostGIS <em>point</em>, which serializes to plain numbers — the only question is order, and different tools disagree about it <em>silently</em>. Both values are just numbers, so nothing errors; your pin just lands in the wrong ocean.</p>
+      <div class="callout gotcha"><strong>Boston is <code>lat 42.36, lng -71.06</code>.</strong> Swap them and you get a point off the coast of Western Sahara — a bug that parses fine and points nowhere real. Naming the fields <code>lat</code> and <code>lng</code> means the order can never be ambiguous at the call site.</div>
+
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        Anywhere two independently-built tools have to agree on the meaning of a bare positional value (array order, argument order, column order), that agreement is exactly the kind of thing that silently drifts. A named field is cheap insurance against a whole category of "everything type-checks, nothing works" bugs.
+      </div>
     </section>
 
-    <!-- =========================================================
-         PART II — MODELING THE SPOT
-         ========================================================= -->
-    <div class="part-divider"><span class="pn">II</span><div>Modeling the Spot <small>The specific decisions baked into your type</small></div></div>
+    <div class="part-divider"><span class="pn">II</span><div>Modeling the Spot<small>The specific decisions baked into the type</small></div></div>
 
-    <!-- ============ 05 ============ -->
     <section class="chapter" id="c5">
       <div class="chapter-head"><span class="chapter-num">05</span><h2>id: number or string?</h2></div>
       <div class="tags"><span class="tag concept">Concept</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">primary key</span><span class="kw">enumerability</span></div>
 
-      <h3>What we decided</h3>
-      <p>You chose <code>id: number</code>. That's a real fork in the road, and it ripples into your React <code>key</code> props, your <code>/api/spots/[id]</code> route, and your Prisma primary key. Here's the trade so you can defend it.</p>
+      <h3>What</h3>
+      <p><code>id: number</code> was chosen. A real fork in the road — it ripples into React <code>key</code> props, the <code>/api/spots/[id]</code> route, and the Prisma primary key.</p>
+
+      <h3>How</h3>
       <div class="tbl-wrap">
         <table>
           <thead><tr><th></th><th><code>number</code> (auto-increment)</th><th><code>string</code> (cuid / uuid)</th></tr></thead>
@@ -579,76 +370,75 @@ created.toLocaleDateString();                // "8/2/2026"</code></pre>
           </tbody>
         </table>
       </div>
-      <p>For a learning project, <code>number</code> is a perfectly good call — it keeps Prisma Studio readable and the URLs friendly. Just know the trade-off you accepted: sequential ids leak "how many spots exist" and are trivially enumerable. If this ever went public with private data, that's when you'd revisit it.</p>
-      <div class="callout"><strong>Contract consequence:</strong> whatever you pick, your mock ids must be that type. <code>id: 1</code> and <code>id: "1"</code> are different contracts, and <code>===</code> comparisons in your click handlers will care.</div>
 
-      <h3>How to study</h3>
-      <p>Skim the Prisma <code>@id</code> docs and note the two default generators. Ask yourself: "who assigns this value, and when?" That question — not readability — is the real axis.</p>
-      <ul class="study-links">
-        <li><a href="https://www.prisma.io/docs/orm/prisma-schema/data-model/models#defining-an-id-field" target="_blank" rel="noopener">Prisma — defining an id field</a></li>
-      </ul>
+      <h3>Why</h3>
+      <p>For a learning project, <code>number</code> is a perfectly good call — readable Prisma Studio rows, friendly URLs. The trade-off accepted: sequential ids leak "how many spots exist" and are trivially enumerable. If this ever went public with private data, that's when to revisit it.</p>
+      <div class="callout"><strong>Contract consequence:</strong> whatever you pick, mock ids must be that type. <code>id: 1</code> and <code>id: "1"</code> are different contracts, and <code>===</code> comparisons in click handlers will care.</div>
+
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        The real axis isn't "which is more readable" — it's <em>"who assigns this value, and when?"</em> A database-assigned sequential id and a client-generatable uuid solve genuinely different problems (offline-first apps often need the latter, so an id can exist before the server has ever seen the record).
+      </div>
     </section>
 
-    <!-- ============ 06 ============ -->
     <section class="chapter" id="c6">
       <div class="chapter-head"><span class="chapter-num">06</span><h2>Union types as enums</h2></div>
       <div class="tags"><span class="tag concept">Concept</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">string-literal union</span><span class="kw">runtime validation</span></div>
 
-      <h3>What you built</h3>
-      <p>Instead of typing <code>spot_type: string</code>, you named the exact allowed values:</p>
+      <h3>What</h3>
+      <p>Instead of typing <code>spot_type: string</code>, the exact allowed values are named directly.</p>
+
+      <h3>How</h3>
       <pre><code>export type SpotType = "park" | "street" | "diy";
 export type Status   = "active" | "pending" | "closed";
 export type Feature  = "ledge" | "rail" | "plaza" | "stairs" | "skatepark";</code></pre>
 
-      <h3>Why this is the better move</h3>
-      <p>A <strong>string-literal union</strong> turns a whole category of runtime bugs into compile-time errors. <code>spot_type: "streat"</code> (typo) is a red squiggle immediately, not a filter that silently matches nothing in Phase 5. Your editor also autocompletes the legal values, so you never have to remember them.</p>
-      <div class="callout"><strong>This is a contract, not a convenience.</strong> When Phase 5's filter compares <code>spot.spot_type === activeFilter</code>, it's comparing against these <em>exact strings</em>. And in Phase 6 your Postgres/Prisma enum must list these same values, character for character. Change one here and three phases downstream have to agree.</div>
+      <h3>Why</h3>
+      <p>A <strong>string-literal union</strong> turns a whole category of runtime bugs into compile-time errors. <code>spot_type: "streat"</code> (typo) is a red squiggle immediately, not a filter that silently matches nothing later. The editor also autocompletes the legal values.</p>
+      <div class="callout"><strong>This is a contract, not a convenience.</strong> A later filter comparing <code>spot.spot_type === activeFilter</code> is comparing against these exact strings, and the Postgres/Prisma enum must list the same values, character for character.</div>
+      <p><strong>The watch-out:</strong> a union only guards code the compiler can see. Data arriving from the network is typed <code>any</code> until validated — a DB row with <code>spot_type: "vert"</code> would sail past TypeScript. That's exactly why runtime validation (e.g. Zod) exists: to re-check unions at the boundary the compiler can't reach.</p>
 
-      <h3>The watch-out</h3>
-      <p>A union only guards code the compiler can see. Data arriving from the <em>network</em> in Phase 7 is typed <code>any</code> until you validate it — a row with <code>spot_type: "vert"</code> in the DB would sail past TypeScript. That's exactly why Phase 8 introduces <strong>Zod</strong>: to re-check these unions at the runtime boundary where the compiler can't reach.</p>
-
-      <h3>How to study</h3>
-      <p>In a scratch <code>.ts</code> file, assign <code>const t: SpotType = "vert"</code> and read the error — it lists your legal values back to you. Then widen it to <code>string</code> and watch the safety disappear.</p>
-      <ul class="study-links">
-        <li><a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" target="_blank" rel="noopener">TypeScript — literal &amp; union types</a></li>
-      </ul>
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        This is the compile-time half of the same exhaustiveness idea from Study Sheet 05, Item 2 (<code>Record&lt;K,V&gt;</code>) — a closed set of legal values, enforced by the type system. The gap it leaves (runtime data isn't automatically checked) is precisely the seam where a schema-validation library earns its keep.
+      </div>
     </section>
 
-    <!-- ============ 07 ============ -->
     <section class="chapter" id="c7">
-      <div class="chapter-head"><span class="chapter-num">07</span><h2>spot_type vs features — category vs attributes</h2></div>
-      <div class="tags"><span class="tag concept">Concept</span></div>
+      <div class="chapter-head"><span class="chapter-num">07</span><h2>spot_type vs. features — category vs. attributes</h2></div>
+      <div class="tags"><span class="tag pattern">Pattern</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">category vs. attribute</span><span class="kw">data modeling</span></div>
 
-      <h3>The decision worth being proud of</h3>
-      <p>The roadmap floated one flat list — <code>park | street | ledge | rail | stairs | bowl | DIY</code>. You split it into <strong>two</strong> dimensions instead:</p>
+      <h3>What</h3>
+      <p>The roadmap floated one flat list — <code>park | street | ledge | rail | stairs | bowl | DIY</code>. It was split into <strong>two</strong> dimensions instead.</p>
+
+      <h3>How</h3>
       <div class="flow">
         <div class="node"><div class="cap">spot_type — what KIND of place</div><code>"park" | "street" | "diy"</code><br><span style="color:var(--text-muted)">exactly one per spot</span></div>
         <div class="arrow">+</div>
         <div class="node"><div class="cap">features — what's THERE</div><code>("ledge" | "rail" | "plaza" | …)[]</code><br><span style="color:var(--text-muted)">many per spot</span></div>
       </div>
 
-      <h3>Why it's the stronger model</h3>
-      <p>Those original values weren't actually the same <em>kind</em> of thing. "Street" is a category; "ledge" and "rail" are things a street spot <em>has</em> — and it can have several at once. Cramming them into one field forces a false choice ("is Eggs a street spot or a ledge spot?" — it's a street spot <em>with</em> ledges and stairs, which your model says cleanly: <code>spot_type: "street", features: ["ledge","stairs"]</code>).</p>
-      <p>This is the classic modeling question: <strong>"is this a single category, or a set of attributes?"</strong> Single category → one enum field. Set of independent traits → an array (or, later, a related table). Getting this right now means the Phase 5 filters can be richer: filter by <em>type</em>, by <em>feature</em>, or both.</p>
-      <div class="callout"><strong>The seam for later:</strong> in Phase 6 this two-axis design maps naturally to the database — <code>spot_type</code> becomes an enum column, and <code>features</code> becomes either a Postgres array column or a full one-to-many <code>Feature</code> table (a Phase 9 / stretch decision). You built the flexibility in for free.</div>
+      <h3>Why</h3>
+      <p>Those original values weren't the same <em>kind</em> of thing. "Street" is a category; "ledge" and "rail" are things a street spot <em>has</em> — and can have several at once. Cramming them into one field forces a false choice. This is the classic modeling question: <strong>"is this a single category, or a set of attributes?"</strong> Single category → one enum field. Set of independent traits → an array (or later, a related table).</p>
+      <div class="callout"><strong>The seam for later:</strong> this two-axis design maps naturally to the database — <code>spot_type</code> becomes an enum column, <code>features</code> becomes an array column or a related table. The flexibility is built in for free.</div>
 
-      <h3>How to study</h3>
-      <p>Take three real spots you know and write each as <code>{ spot_type, features }</code>. If you ever feel the urge to put the same value in both, that's the signal your two axes have blurred — re-separate them.</p>
-      <ul class="study-links">
-        <li><a href="https://react.dev/learn/thinking-in-react" target="_blank" rel="noopener">React — Thinking in React (the same "one thing vs many" instinct, for UI)</a></li>
-      </ul>
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        This "one category vs. many attributes" question recurs everywhere in modeling — user roles vs. permissions, order status vs. order tags, a blog post's type vs. its labels. If you ever feel the urge to put the same value in both fields, that's the signal the two axes have blurred back together.
+      </div>
     </section>
 
-    <!-- ============ 08 ============ -->
     <section class="chapter" id="c8">
       <div class="chapter-head"><span class="chapter-num">08</span><h2>Optional fields = the nullability contract</h2></div>
       <div class="tags"><span class="tag concept">Concept</span><span class="tag gotcha">Gotcha</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">optional (?)</span><span class="kw">nullable column</span></div>
 
-      <h3>What you decided</h3>
-      <p>You marked <code>description?</code> and <code>photo?</code> optional, and left the rest required. Each <code>?</code> is a promise to the rest of the app: <em>"this field might not be here — you must handle its absence."</em></p>
+      <h3>What</h3>
+      <p><code>description?</code> and <code>photo?</code> are optional; the rest are required. Each <code>?</code> is a promise to the rest of the app: <em>"this field might not be here — you must handle its absence."</em></p>
 
-      <h3>The three ways "no photo" can look</h3>
-      <p>This is subtle and worth pinning down, because <code>?</code> in TypeScript and the JSON on the wire don't line up perfectly:</p>
+      <h3>How</h3>
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>On the wire</th><th>In TS after parse</th><th>Meaning</th></tr></thead>
@@ -659,103 +449,93 @@ export type Feature  = "ledge" | "rail" | "plaza" | "stairs" | "skatepark";</cod
           </tbody>
         </table>
       </div>
-      <div class="callout gotcha"><strong>Your mock uses <code>photo: ""</code>.</strong> That's a <em>present, empty</em> string, which is a different case from the optional-and-absent that <code>photo?</code> describes. Pick one convention — "missing photo means the key is absent" <em>or</em> "means <code>null</code>" — and make the mock and the API agree, so the Phase 4 details panel only has to check one thing before rendering the image.</div>
+      <div class="callout gotcha"><strong>The mock uses <code>photo: ""</code>.</strong> That's a <em>present, empty</em> string — a different case from the optional-and-absent that <code>photo?</code> describes. Pick one convention and make the mock and the API agree.</div>
 
-      <h3>Why it matters downstream</h3>
-      <p>Every optional field is a branch your components must write: <code>{spot.photo ? &lt;img …/&gt; : &lt;Placeholder/&gt;}</code>. Deciding nullability now, at the contract, is deciding how many of those branches exist. It also lines up with the database: an optional field is a <strong>nullable column</strong>; a required one is <code>NOT NULL</code>. The <code>?</code> you type today is a schema constraint you're pre-committing to.</p>
+      <h3>Why</h3>
+      <p>Every optional field is a branch a component must write: <code>{spot.photo ? &lt;img …/&gt; : &lt;Placeholder/&gt;}</code>. Deciding nullability now, at the contract, is deciding how many of those branches exist. It also lines up with the database: an optional field is a <strong>nullable column</strong>; a required one is <code>NOT NULL</code>.</p>
 
-      <h3>How to study</h3>
-      <p>Console: compare <code>obj.photo === undefined</code>, <code>=== null</code>, and <code>=== ""</code> for each of the three shapes above. Then read how <code>JSON.stringify</code> treats a key whose value is <code>undefined</code> (it drops it) vs <code>null</code> (it keeps it) — that's why the first two rows differ.</p>
-      <ul class="study-links">
-        <li><a href="https://www.typescriptlang.org/docs/handbook/2/objects.html#optional-properties" target="_blank" rel="noopener">TypeScript — optional properties</a></li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy" target="_blank" rel="noopener">MDN — falsy values (why <code>""</code>, <code>null</code>, <code>undefined</code> all read as false)</a></li>
-      </ul>
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        Three states masquerading as "empty" (absent, <code>null</code>, <code>""</code>) is a very common source of subtle bugs in any typed system talking to an untyped wire format. Deciding — in writing, on purpose — which one your codebase means by "no value" heads off a whole class of "why doesn't my falsy check work" debugging later.
+      </div>
     </section>
 
-    <!-- ============ 09 ============ -->
     <section class="chapter" id="c9">
       <div class="chapter-head"><span class="chapter-num">09</span><h2>Naming consistency &amp; type/data lockstep</h2></div>
       <div class="tags"><span class="tag bug">Bug avoided</span><span class="tag concept">Concept</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">snake_case vs camelCase</span><span class="kw">excess property check</span></div>
 
-      <h3>What happened</h3>
-      <p>The shape briefly mixed conventions — <code>spot_type</code>, <code>lat_lng</code>, <code>is_skateable</code> in <code>snake_case</code> but <code>createdAt</code> in <code>camelCase</code>. You unified on <code>snake_case</code> (<code>created_at</code>) — and, crucially, you changed it in <strong>both</strong> the type <em>and</em> the data at once.</p>
+      <h3>What</h3>
+      <p>The shape briefly mixed conventions — <code>spot_type</code>, <code>lat_lng</code>, <code>is_skateable</code> in <code>snake_case</code> but <code>createdAt</code> in <code>camelCase</code>. It was unified on <code>snake_case</code> — and, crucially, changed in <strong>both</strong> the type <em>and</em> the data at once.</p>
 
-      <h3>Why the lockstep matters</h3>
-      <p>The type file and the mock file are two halves of <strong>one contract</strong>. If you rename <code>createdAt</code> → <code>created_at</code> in the data but not the type, TypeScript screams: the object is missing a required <code>createdAt</code> and carries an unknown <code>created_at</code>. You moved them together, so the compiler stayed green — that's the discipline: <em>a shape change is never done until the type and every producer of that shape agree.</em></p>
-      <div class="callout"><strong>Why we even checked the compiler:</strong> a clean <code>tsc</code> is the cheap proof that type and data still describe the same thing. When you renamed the field, "zero diagnostics" was the evidence the contract was still whole. Treat a green compile as a passing test of your data shape.</div>
+      <h3>How</h3>
+      <p>Deliberately rename one field in mock data but not the type, save, and read the two errors TypeScript gives (missing key + excess key). Fix the type. That error pair <em>is</em> the lockstep lesson.</p>
 
-      <h3>The one honest caveat about snake_case</h3>
-      <p>JavaScript's own convention is <code>camelCase</code>; <code>snake_case</code> keys are common in APIs (and match SQL column names). Either is fine — <strong>consistency is the whole point</strong>. Just know that if your Postgres columns end up <code>snake_case</code> and some JS wants <code>camelCase</code>, the translation happens in exactly one place: the serialization boundary (Ch 11). Choosing <code>snake_case</code> end-to-end means <em>no</em> translation — one fewer moving part.</p>
+      <h3>Why</h3>
+      <p>The type file and the mock file are two halves of <strong>one contract</strong>. Rename a field in the data but not the type, and TypeScript flags both: the object is missing a required old key and carries an unknown new one. That's the discipline — <em>a shape change is never done until the type and every producer of that shape agree.</em></p>
+      <div class="callout"><strong>Why check the compiler at all:</strong> a clean <code>tsc</code> is the cheap proof that type and data still describe the same thing. Treat a green compile as a passing test of your data shape.</div>
+      <p>JavaScript's own convention is <code>camelCase</code>; <code>snake_case</code> keys are common in APIs and match SQL column names. Either is fine — <strong>consistency is the whole point</strong>. If Postgres columns end up <code>snake_case</code> and some JS wants <code>camelCase</code>, the translation happens in exactly one place: the serialization boundary (Ch 11).</p>
 
-      <h3>How to study</h3>
-      <p>Deliberately rename one field in the mock but not the type, save, and read the two errors TypeScript gives (missing key + excess key). Then fix the type. That error pair <em>is</em> the lockstep lesson — feel it once on purpose.</p>
-      <ul class="study-links">
-        <li><a href="https://www.typescriptlang.org/docs/handbook/2/objects.html#excess-property-checks" target="_blank" rel="noopener">TypeScript — excess property checks</a></li>
-      </ul>
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        "Type and data move in lockstep" is a narrower instance of single source of truth (Study Sheet 05, Item 4) — the type file and the data file are two independently-editable places describing the same contract, and only the compiler is actually watching that they still agree.
+      </div>
     </section>
 
-    <!-- =========================================================
-         PART III — ENTITY → MODEL
-         ========================================================= -->
-    <div class="part-divider"><span class="pn">III</span><div>Entity → Model <small>One spot, living at three layers of the stack</small></div></div>
+    <div class="part-divider"><span class="pn">III</span><div>Entity → Model<small>One spot, living at three layers of the stack</small></div></div>
 
-    <!-- ============ 10 ============ -->
     <section class="chapter" id="c10">
       <div class="chapter-head"><span class="chapter-num">10</span><h2>One spot, three representations</h2></div>
-      <div class="tags"><span class="tag concept">Concept</span></div>
+      <div class="tags"><span class="tag pattern">Pattern</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">DTO</span><span class="kw">domain entity</span><span class="kw">data model</span></div>
 
-      <h3>The big idea</h3>
-      <p>"A skate spot" is not one thing in your codebase — it's the <em>same concept</em> wearing three different costumes depending on where it stands. Confusing the layers is the root of most data bugs; separating them is most of software architecture.</p>
+      <h3>What</h3>
+      <p>"A skate spot" is not one thing in the codebase — it's the <em>same concept</em> wearing three different costumes depending on where it stands.</p>
 
+      <h3>How</h3>
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>Layer</th><th>Name for it</th><th>What it is</th><th>Location = ?</th></tr></thead>
           <tbody>
             <tr><td><b>1. Entity</b></td><td>Domain entity</td><td>The real ledge by the water. A concept, not code.</td><td>a physical place</td></tr>
-            <tr><td><b>2. Wire</b></td><td>DTO / your <code>Spot</code> type</td><td>The JSON your API sends &amp; your UI renders.</td><td><code>{ lat, lng }</code></td></tr>
+            <tr><td><b>2. Wire</b></td><td>DTO / the <code>Spot</code> type</td><td>The JSON the API sends &amp; the UI renders.</td><td><code>{ lat, lng }</code></td></tr>
             <tr><td><b>3. Store</b></td><td>Data model / schema</td><td>The Prisma model &amp; Postgres table it lives in.</td><td><code>geography(Point)</code></td></tr>
           </tbody>
         </table>
       </div>
+      <pre><code>// 2 · DTO (types/spot.ts) — the contract, Chapters 05–09
+{ id: 3, name: "Copley Library", spot_type: "street",
+  features: ["plaza"], lat_lng: { lat: 42.35, lng: -71.08 },
+  created_at: "2026-08-02T…Z" }
 
-      <div class="lab">
-        <div class="lab-label">The same spot, three costumes</div>
-        <div class="tree"><b>1 · ENTITY</b>  "Copley Library ledges" — a real spot in Boston
-     │
-     ▼  <span class="k">you decide what's worth capturing</span>
-<b>2 · DTO</b> (types/spot.ts)     the contract — Chapters 05–09
-     { id: 3, name: "Copley Library",
-       spot_type: "street", features: ["plaza"],
-       lat_lng: { lat: 42.35, lng: -71.08 },
-       created_at: "2026-08-02T…Z" }
-     │
-     ▼  <span class="k">mostly a rename + type-swap</span>
-<b>3 · DATA MODEL</b> (schema.prisma → Postgres)
-     model Spot {
-       id         Int      @id @default(autoincrement())
-       name       String
-       spot_type  SpotType            // Postgres enum
-       location   Unsupported("geography(Point,4326)")
-       created_at DateTime @default(now())  // timestamptz
-     }</div>
+// 3 · DATA MODEL (schema.prisma → Postgres)
+model Spot {
+  id         Int      @id @default(autoincrement())
+  name       String
+  spot_type  SpotType                          // Postgres enum
+  location   Unsupported("geography(Point,4326)")
+  created_at DateTime @default(now())           // timestamptz
+}</code></pre>
+
+      <h3>Why</h3>
+      <p>Confusing the layers is the root of most data bugs; separating them is most of software architecture.</p>
+      <div class="callout"><strong>Why UI-first works because of this:</strong> layer 2 (the DTO) is built first, by hand, against mock data. Layer 3 (the model) comes later and is shaped to <em>match</em> what layer 2 already promised — get the middle layer right and the bottom layer just conforms to it.</div>
+
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        This three-layer split (entity / DTO / persistence model) is one of the most transferable ideas in this whole manual — it's the same shape as MVC's model layer vs. its view-model, or a domain-driven-design "aggregate" vs. its database row. Once you can name which layer a piece of code is operating at, a lot of "where does this logic belong" confusion resolves itself.
       </div>
-
-      <div class="callout"><strong>Why UI-first works because of this:</strong> you're building layer 2 (the DTO) first, by hand, against mock data. Layer 3 (the model) comes in Phase 6 and is shaped to <em>match</em> what layer 2 already promised. That's the whole bet from the roadmap — get the middle layer right and the bottom layer just conforms to it.</div>
-
-      <h3>How to study</h3>
-      <p>Take one spot and write it out at all three layers on paper. Circle the fields that <em>change representation</em> between layer 2 and layer 3 (location, created_at, the enums). Those circles are Chapter 11.</p>
-      <ul class="study-links">
-        <li><a href="https://martinfowler.com/eaaCatalog/dataTransferObject.html" target="_blank" rel="noopener">Fowler — Data Transfer Object (the "wire" layer, named)</a></li>
-      </ul>
     </section>
 
-    <!-- ============ 11 ============ -->
     <section class="chapter" id="c11">
       <div class="chapter-head"><span class="chapter-num">11</span><h2>The mapping — and where the transformation lives</h2></div>
       <div class="tags"><span class="tag concept">Concept</span><span class="tag gotcha">Gotcha</span></div>
+      <div class="keywords"><span class="kw-label">Keywords</span><span class="kw">impedance mismatch</span><span class="kw">route handler</span></div>
 
-      <h3>The field-by-field map</h3>
-      <p>Every field either passes through unchanged or gets <strong>transformed</strong> as it crosses from the database (layer 3) to the wire (layer 2). Here's your <code>Spot</code>, mapped:</p>
+      <h3>What</h3>
+      <p>Every field either passes through unchanged or gets <strong>transformed</strong> as it crosses from the database (layer 3) to the wire (layer 2).</p>
+
+      <h3>How</h3>
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>DTO field (Ch 05–09)</th><th>Postgres / Prisma</th><th>Transform?</th></tr></thead>
@@ -770,77 +550,66 @@ export type Feature  = "ledge" | "rail" | "plaza" | "stairs" | "skatepark";</cod
           </tbody>
         </table>
       </div>
-
-      <h3>Where the transform physically happens</h3>
-      <p>Not in the browser, and not in the database — in <strong>your route handler on the server</strong> (Phase 7's <code>GET /api/spots</code>). That's the one place both worlds are visible at once:</p>
       <div class="flow">
         <div class="node"><div class="cap">DB row (layer 3)</div><code>location = POINT(-71.08 42.35)</code></div>
         <div class="arrow">→</div>
         <div class="node"><div class="cap">Server route handler</div><code>reshape → { lat: 42.35, lng: -71.08 }</code></div>
         <div class="arrow">→</div>
-        <div class="node"><div class="cap">JSON to browser (layer 2)</div><code>matches your Spot type</code></div>
+        <div class="node"><div class="cap">JSON to browser (layer 2)</div><code>matches the Spot type</code></div>
       </div>
-      <p>This gap between "how it's stored" and "how it's used" has a name: <strong>impedance mismatch</strong>. Your job at the server boundary is to absorb it, so the UI never sees a <code>geography</code> blob and the database never sees a JS <code>Date</code>.</p>
 
-      <div class="callout gotcha"><strong>The PostGIS reality check:</strong> Prisma can't fully model a <code>geography</code> column, so Phase 6/10 you'll declare it as <code>Unsupported(...)</code> and read it with a raw, <em>parameterized</em> query (<code>ST_X</code>/<code>ST_Y</code> to pull <code>lng</code>/<code>lat</code> back out). That's not Prisma failing — it's the exact seam where layer 3 refuses to auto-map to layer 2, and you step in. Your <code>{ lat, lng }</code> DTO is the target that raw query fills.</div>
+      <h3>Why</h3>
+      <p>The transform happens neither in the browser nor the database — in the <strong>server route handler</strong>, the one place both worlds are visible at once. This gap between "how it's stored" and "how it's used" has a name: <strong>impedance mismatch</strong>. The server boundary's job is to absorb it, so the UI never sees a <code>geography</code> blob and the database never sees a JS <code>Date</code>.</p>
+      <div class="callout gotcha"><strong>The PostGIS reality check:</strong> Prisma can't fully model a <code>geography</code> column — it gets declared <code>Unsupported(...)</code> and read with a raw, parameterized query (<code>ST_X</code>/<code>ST_Y</code>). That's not Prisma failing; it's the exact seam where layer 3 refuses to auto-map to layer 2, and a person has to step in.</div>
 
-      <h3>How to study</h3>
-      <p>For each row in the map above, answer "pass-through or transform?" without looking. The three transforms — location, date, optional/NULL — are precisely the three things Parts I &amp; II drilled. That's not a coincidence; this manual was built backwards from this table.</p>
-      <ul class="study-links">
-        <li><a href="https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries" target="_blank" rel="noopener">Prisma — raw &amp; parameterized queries</a></li>
-        <li><a href="https://postgis.net/docs/using_postgis_dbmanagement.html#Geography_Basics" target="_blank" rel="noopener">PostGIS — geography basics</a></li>
-        <li><a href="https://en.wikipedia.org/wiki/Object%E2%80%93relational_impedance_mismatch" target="_blank" rel="noopener">Object–relational impedance mismatch</a></li>
-      </ul>
+      <div class="idea">
+        <div class="idea-label">Idea to consider</div>
+        For each row in the mapping table, the honest answer is always either "pass-through" or "transform" — and the three transforms here (location, date, optional/NULL) are precisely the three things earlier chapters drilled. That's not a coincidence: knowing what has to transform at a boundary is the whole reason to understand the layers in the first place.
+      </div>
     </section>
 
-    <!-- ============ APPENDIX A ============ -->
-    <section class="chapter" id="appendix">
-      <div class="chapter-head"><span class="chapter-num">A</span><h2>Working principles from this session</h2></div>
-      <ol>
-        <li><strong>The mock is the wire shape.</strong> Design mock data to match what <code>JSON.parse</code> yields on the client, not the server object. <em>(Ch 01, 03)</em></li>
-        <li><strong>JSON is text with six shapes.</strong> Anything richer — dates, geometry, enums — is transformed or dropped. Know which. <em>(Ch 02)</em></li>
-        <li><strong>Name coordinates, never order them.</strong> <code>{ lat, lng }</code> beats <code>[a, b]</code> because tools disagree on order silently. <em>(Ch 04)</em></li>
-        <li><strong>Model categories and attributes separately.</strong> One-of → enum; many-of → array/relation. <em>(Ch 07)</em></li>
-        <li><strong>Optional is a promise, not a default.</strong> Every <code>?</code> is a branch downstream and a nullable column below. <em>(Ch 08)</em></li>
-        <li><strong>Type and data move in lockstep.</strong> A shape change isn't done till the compiler is green again. <em>(Ch 09)</em></li>
-        <li><strong>One spot, three layers.</strong> Entity → DTO → data model; the server boundary absorbs the mismatch. <em>(Ch 10, 11)</em></li>
-      </ol>
+    <section class="chapter" id="glossary">
+      <div class="chapter-head"><span class="chapter-num">A</span><h2>Glossary</h2></div>
+      <dl class="glossary">
+        <div><dt>Serialization / deserialization</dt><dd>Turning an in-memory object into flat text for transport (<code>JSON.stringify</code>), and rebuilding an object from that text (<code>JSON.parse</code>).</dd></div>
+        <div><dt>Wire shape</dt><dd>The exact object shape that comes out of <code>JSON.parse()</code> on the receiving end — the only shape a client ever actually sees, regardless of what existed in memory before serialization.</dd></div>
+        <div><dt>String-literal union</dt><dd>A TypeScript type naming the exact legal string values (<code>"park" | "street" | "diy"</code>) instead of the general <code>string</code> — compile-time enum-like safety.</dd></div>
+        <div><dt>Nullable column</dt><dd>A database column allowed to hold <code>NULL</code> — the storage-layer counterpart of a TypeScript optional (<code>?</code>) field.</dd></div>
+        <div><dt>DTO (Data Transfer Object)</dt><dd>The shape of data as it crosses a boundary (like an API response) — distinct from both the real-world entity it represents and the database model that stores it.</dd></div>
+        <div><dt>Impedance mismatch</dt><dd>The general gap between how data is stored (e.g. a relational/geographic database) and how it's used (e.g. a JS object) — something has to translate between the two.</dd></div>
+      </dl>
     </section>
 
-    <!-- ============ APPENDIX B — QUIZ ============ -->
     <section class="chapter" id="quiz">
       <div class="chapter-head"><span class="chapter-num">B</span><h2>Self-test</h2></div>
       <p>Say the answer aloud <em>before</em> opening each — the explaining is what makes it stick.</p>
       <div class="quiz">
-        <details><summary>Why is <code>created_at</code> typed <code>string</code> and not <code>Date</code>?</summary><div class="answer">Because JSON has no Date type. <code>JSON.stringify</code> calls <code>Date.toJSON()</code>, turning it into an ISO string — so by the time the UI sees it, it only ever was a string. Re-hydrate with <code>new Date(str)</code> only where you need date math.</div></details>
-        <details><summary>What happens to a key whose value is <code>undefined</code> when you <code>JSON.stringify</code>?</summary><div class="answer">It's dropped entirely — the key doesn't appear in the output. A <code>null</code> value, by contrast, is kept. This is why "optional/absent" and "null" are genuinely different states.</div></details>
-        <details><summary>Boston is around <code>lat 42.36, lng -71.06</code>. Why is a named <code>{lat,lng}</code> object safer than <code>[42.36, -71.06]</code>?</summary><div class="answer">Because Leaflet wants <code>[lat, lng]</code> but GeoJSON/PostGIS want <code>[lng, lat]</code> — opposite orders, both just numbers, so a swap fails silently and puts your pin in the wrong place. Named fields make the order unambiguous.</div></details>
-        <details><summary>Why split <code>spot_type</code> from <code>features</code> instead of one flat enum?</summary><div class="answer">They're different kinds of thing: type is a single category (exactly one), features are independent attributes (many). A street spot can have a ledge <em>and</em> stairs — two axes model that honestly; one flat list forces a false choice.</div></details>
-        <details><summary>Name the three ways "no photo" can appear, and which one <code>photo?</code> describes.</summary><div class="answer">Key absent (<code>undefined</code>) — what <code>?</code> models; <code>null</code> (explicit empty / DB NULL); and <code>""</code> (a present, empty string). Your mock's <code>photo: ""</code> is the third — a different case from the first.</div></details>
-        <details><summary>You rename a field in the mock but not the type. What does TypeScript say, and what's the lesson?</summary><div class="answer">Two errors: the object is missing the required old key, and it has an unknown excess key. The lesson: type and data are one contract — a shape change isn't finished until both agree and the compiler is green.</div></details>
-        <details><summary>Name the three layers a single spot lives at.</summary><div class="answer">Entity (the real place), DTO / your <code>Spot</code> type (the JSON on the wire), and the data model (Prisma model + Postgres table). UI-first builds the middle one first; the bottom one conforms to it later.</div></details>
-        <details><summary>Which three <code>Spot</code> fields genuinely <em>transform</em> between database and wire, and where does that happen?</summary><div class="answer">Location (<code>geography</code> ↔ <code>{lat,lng}</code>), <code>created_at</code> (<code>timestamptz</code> ↔ ISO string), and optional fields (NULL ↔ absent/undefined). The transform lives in your server route handler — the one place both worlds are visible.</div></details>
+        <details><summary>Why is <code>created_at</code> typed <code>string</code> and not <code>Date</code>?</summary><div class="answer">Because JSON has no Date type. <code>JSON.stringify</code> calls <code>Date.toJSON()</code>, turning it into an ISO string — so by the time the UI sees it, it only ever was a string.</div></details>
+        <details><summary>What happens to a key whose value is <code>undefined</code> when you <code>JSON.stringify</code>?</summary><div class="answer">It's dropped entirely — the key doesn't appear in the output. A <code>null</code> value, by contrast, is kept.</div></details>
+        <details><summary>Why is a named <code>{lat,lng}</code> object safer than <code>[42.36, -71.06]</code>?</summary><div class="answer">Leaflet wants <code>[lat, lng]</code> but GeoJSON/PostGIS want <code>[lng, lat]</code> — opposite orders, both just numbers, so a swap fails silently. Named fields make the order unambiguous.</div></details>
+        <details><summary>Why split <code>spot_type</code> from <code>features</code> instead of one flat enum?</summary><div class="answer">Type is a single category (exactly one), features are independent attributes (many). One flat list forces a false either/or choice.</div></details>
+        <details><summary>Name the three ways "no photo" can appear, and which one <code>photo?</code> describes.</summary><div class="answer">Key absent (<code>undefined</code>) — what <code>?</code> models; <code>null</code> (explicit empty); and <code>""</code> (a present, empty string) — a different case from the first.</div></details>
+        <details><summary>You rename a field in the mock but not the type. What does TypeScript say?</summary><div class="answer">Two errors: the object is missing the required old key, and it carries an unknown excess key — type and data are one contract that must move together.</div></details>
+        <details><summary>Name the three layers a single spot lives at.</summary><div class="answer">Entity (the real place), DTO / the Spot type (the wire), and the data model (Prisma/Postgres). UI-first builds the middle layer first; the bottom one conforms to it later.</div></details>
+        <details><summary>Which fields genuinely <em>transform</em> between database and wire, and where does that transform happen?</summary><div class="answer">Location, <code>created_at</code>, and optional fields. The transform lives in the server route handler — the one place both worlds are visible.</div></details>
       </div>
     </section>
 
-    <!-- ============ APPENDIX C — LINKS ============ -->
     <section class="chapter" id="links">
       <div class="chapter-head"><span class="chapter-num">C</span><h2>Study links — go deeper</h2></div>
       <h3>Serialization &amp; JSON</h3>
       <ul class="study-links">
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify" target="_blank" rel="noopener">MDN — JSON.stringify (what it transforms &amp; drops)</a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toJSON" target="_blank" rel="noopener">MDN — Date.toJSON</a></li>
-        <li><a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener">ISO 8601 timestamps</a></li>
       </ul>
       <h3>Typing the shape</h3>
       <ul class="study-links">
-        <li><a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" target="_blank" rel="noopener">TypeScript — Everyday Types (unions, optionals)</a></li>
-        <li><a href="https://zod.dev/" target="_blank" rel="noopener">Zod — runtime validation for the network boundary (Phase 8)</a></li>
+        <li><a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" target="_blank" rel="noopener">TypeScript — Everyday Types</a></li>
+        <li><a href="https://zod.dev/" target="_blank" rel="noopener">Zod — runtime validation at the network boundary</a></li>
       </ul>
       <h3>The data model &amp; geo</h3>
       <ul class="study-links">
         <li><a href="https://www.prisma.io/docs/orm/prisma-schema/data-model/models" target="_blank" rel="noopener">Prisma — data model &amp; ids</a></li>
-        <li><a href="https://postgis.net/docs/using_postgis_dbmanagement.html#Geography_Basics" target="_blank" rel="noopener">PostGIS — geography basics</a></li>
         <li><a href="https://datatracker.ietf.org/doc/html/rfc7946" target="_blank" rel="noopener">GeoJSON RFC 7946 (coordinate order)</a></li>
       </ul>
       <h3>Architecture concepts</h3>
@@ -855,67 +624,20 @@ export type Feature  = "ledge" | "rail" | "plaza" | "stairs" | "skatepark";</cod
 
 <footer>
   <span class="wordmark">SPOT <span class="gold">CHECK</span></span>
-  SkateSpots Field Manual №02 · built from the Spot-shape &amp; mockSpots session · design the contract once, and the backend just conforms.
+  SkateSpots Field Manual №02 · built while designing the Spot type and mockSpots.
 </footer>
 
 <script>
-  // reading progress
   const bar = document.getElementById('progress');
-  const onScroll = () => {
-    const h = document.documentElement;
-    const max = h.scrollHeight - h.clientHeight;
-    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
-  };
-  document.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  // scrollspy — highlight active TOC entry
+  const onScroll = () => { const h = document.documentElement; const max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; };
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
   const links = Array.from(document.querySelectorAll('nav.toc a'));
   const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
-  const spy = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        links.forEach(l => l.classList.remove('active'));
-        const a = byId.get(e.target.id);
-        if (a) a.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px' });
+  const spy = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { links.forEach(l => l.classList.remove('active')); const a = byId.get(e.target.id); if (a) a.classList.add('active'); } }); }, { rootMargin: '-20% 0px -70% 0px' });
   document.querySelectorAll('section.chapter').forEach(s => spy.observe(s));
-
-  // copy buttons on code blocks (skip the round-trip lab panes)
   document.querySelectorAll('pre').forEach(pre => {
-    if (pre.closest('.rt')) return;
-    const btn = document.createElement('button');
-    btn.className = 'copy-btn';
-    btn.type = 'button';
-    btn.textContent = 'Copy';
-    btn.addEventListener('click', async () => {
-      const code = pre.querySelector('code');
-      try {
-        await navigator.clipboard.writeText(code ? code.innerText : pre.innerText);
-        btn.textContent = 'Copied';
-        setTimeout(() => (btn.textContent = 'Copy'), 1400);
-      } catch (_) {
-        btn.textContent = 'Press ⌘C';
-      }
-    });
+    const btn = document.createElement('button'); btn.className = 'copy-btn'; btn.type = 'button'; btn.textContent = 'Copy';
+    btn.addEventListener('click', async () => { const code = pre.querySelector('code'); try { await navigator.clipboard.writeText(code ? code.innerText : pre.innerText); btn.textContent = 'Copied'; setTimeout(() => (btn.textContent = 'Copy'), 1400); } catch (_) { btn.textContent = 'Press ⌘C'; } });
     pre.appendChild(btn);
   });
-
-  // live JSON round-trip lab (Ch 03)
-  const btn = document.getElementById('rt-btn');
-  if (btn) {
-    btn.addEventListener('click', () => {
-      const obj = { id: 1, created_at: new Date(), photo: undefined };
-      const text = JSON.stringify(obj, null, 2);
-      document.getElementById('rt-out').textContent = text;
-      const parsed = JSON.parse(text);
-      document.getElementById('rt-note').textContent =
-        'typeof created_at after round-trip: "' + (typeof parsed.created_at) +
-        '"  ·  photo key present? ' + ('photo' in parsed);
-    });
-  }
 </script>
-</body>
-</html>

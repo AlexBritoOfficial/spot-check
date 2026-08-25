@@ -1,0 +1,17 @@
+.root {
+  display: flex;
+  gap: 4px;
+}
+
+.filled {
+  width: 16px;
+  height: 16px;
+  color: var(--color-accent);
+  fill: var(--color-accent);
+}
+
+.empty {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted);
+}

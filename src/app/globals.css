@@ -7,4 +7,6 @@
   --color-text-muted: oklch(0.7 0.02 260); /* placeholder / search icon */
   --color-text: white; /* primary text, caret, hamburger bars */
   --color-text-form-fields: oklch(0.7 0.02 260);
+  --color-badge-bg: oklch(0.26 0.016 260); /* rgb(32, 36, 44) — badge background */
+  --color-bg-page: oklch(0.16 0.012 260); /* page/canvas background — filter bar, map */
 }

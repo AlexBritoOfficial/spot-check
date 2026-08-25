@@ -4,7 +4,7 @@ import { useState } from "react";
 import styles from "./SpotCheckNav.module.css";
 import HamburgerButton from "../button/hamburgerbutton/HamburgerButton.component";
 import SearchBox from "../searchbox/SearchBox.component";
-import AddNewSpotButton from "../button/addnewspotbutton/AddNewSpotButton.component";
+import Button from "../button/Button.component";
 
 export default function SpotCheckNav() {
   return (
@@ -17,7 +17,7 @@ export default function SpotCheckNav() {
         </div>
         <SearchBox />
       </div>
-      <AddNewSpotButton name="+ Add Spot" />
+      <Button label="+ Add Spot" variant="primary" />
     </div>
   );
 }

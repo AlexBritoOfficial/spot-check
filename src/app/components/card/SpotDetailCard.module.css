@@ -1,0 +1,82 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  border-radius: 16px;
+  background-color: var(--color-bg-nav);
+  border: 1px solid var(--color-border);
+  overflow: hidden; /* clips the photo's square corners to the card's rounded ones */
+}
+
+/* Read-only placeholder — diagonal stripe pattern, no upload affordance */
+.photo {
+  position: relative;
+  height: 140px;
+  background: repeating-linear-gradient(
+    45deg,
+    oklch(0.28 0.016 260) 0 10px,
+    oklch(0.24 0.014 260) 10px 20px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photoLabel {
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: oklch(0.6 0.02 260);
+}
+
+.spotDetail {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px 18px;
+}
+
+.spotName {
+  color: var(--color-text);
+  font-family: var(--font-archivo-black);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.firstRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.spotDistance {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding-top: 3px;
+  color: var(--color-text-muted);
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.description {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: oklch(0.78 0.02 260);
+  margin-top: 10px;
+}
+
+.starRow {
+  margin-top: 10px;
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
