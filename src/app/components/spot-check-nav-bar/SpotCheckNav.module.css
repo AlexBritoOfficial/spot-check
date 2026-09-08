@@ -1,6 +1,3 @@
-.navbar {
-}
-
 .div {
   height: 64px;
   flex-shrink: 0;
@@ -33,4 +30,11 @@
 .gold {
   font-family: var(--font-archivo-black);
   color: var(--color-accent);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background-color: rgba(0, 0, 0, 0.5);
 }
