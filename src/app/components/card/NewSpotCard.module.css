@@ -8,6 +8,10 @@
   gap: 5px;
 }
 
+.root.inactive {
+  display: none;
+}
+
 /* firstrow: card title + close button */
 .firstrow {
   display: flex;
