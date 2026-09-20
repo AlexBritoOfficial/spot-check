@@ -1,20 +1,48 @@
 "use client";
 
 import Button from "../button/Button.component";
-import { useState } from "react";
 import CloseButton from "../button/closebutton/CloseButton.component";
 import StarRating from "../starrating/StarRating";
 import styles from "./NewSpotCard.module.css";
+import { Difficulty, Feature, Spot, SpotType } from "@/types/spot";
+import { SubmitEvent } from "react";
 
 interface NewSpotCardProps {
   onClose: () => void;
+  location: { lat: number; lng: number };
+  onSave: (spot: Omit<Spot, "id">) => void;
 }
 
-function NewSpotCard({ onClose }: NewSpotCardProps) {
+function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
+  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const name = formData.get("name") as string;
+    const spot_type = formData.get("spotType") as SpotType;
+    const features = formData.getAll("spotFeature") as Feature[];
+    const difficulty = formData.get("difficulty") as Difficulty;
+    const description = formData.get("description") as string;
+
+    onSave({
+      name,
+      city: "",
+      spot_type,
+      description,
+      features,
+      difficulty,
+      is_skateable: true,
+      rating: 0,
+      lat_lng: location,
+      photo: "",
+      status: "active",
+      created_at: new Date().toISOString(),
+    });
+  }
+
   return (
     // Card container — the whole "Add a new spot" panel
-
-    <div className={styles.root}>
+    <form className={styles.root} onSubmit={handleSubmit}>
       {/* Header row: card title + close button */}
       <div className={styles.firstrow}>
         <label className={styles.cardTitle}>ADD A NEW SPOT</label>
@@ -49,11 +77,12 @@ function NewSpotCard({ onClose }: NewSpotCardProps) {
           <h5 className={styles.spotName}>Spot Name</h5>
           <div className={styles.spotNameDiv}>
             <input
+              name="name"
               placeholder="e.g Riverside Bowl"
               type="text"
               className={styles.spotNameInput}
-              onChange={() => {}}
               aria-label="Spot Name"
+              required
             />
           </div>
 
@@ -63,7 +92,7 @@ function NewSpotCard({ onClose }: NewSpotCardProps) {
             {/* Each label is a pill; the radio inside is visually hidden.
                 Shared name="spotType" makes them mutually exclusive. */}
             <label className={styles.pill}>
-              <input type="radio" name="spotType" value="park" />
+              <input type="radio" name="spotType" value="park" required />
               PARK
             </label>
             <label className={styles.pill}>
@@ -105,7 +134,7 @@ function NewSpotCard({ onClose }: NewSpotCardProps) {
           <label htmlFor="difficulty" className={styles.spotType}>
             Difficulty
           </label>
-          <select id="difficulty" className={styles.select} required>
+          <select id="difficulty" name="difficulty" className={styles.select} required>
             <option value="beginner">Beginner </option>
             <option value="intermediate">Intermediate </option>
             <option value="advanced">Advanced</option>
@@ -126,12 +155,12 @@ function NewSpotCard({ onClose }: NewSpotCardProps) {
           <StarRating rating={0} />
 
           <div className={styles.actionRow}>
-            <Button label="Save Spot" variant="primary" grow={1.3} />
-            <Button label="Cancel" variant="outline" grow={1} />
+            <Button type="submit" label="Save Spot" variant="primary" grow={1.3} />
+            <Button type="button" label="Cancel" variant="outline" grow={1} onClick={onClose} />
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 

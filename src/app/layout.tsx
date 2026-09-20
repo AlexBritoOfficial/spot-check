@@ -15,12 +15,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${archivo_black.variable}`}>
       <body className="min-h-full flex flex-col">{children}</body>
-
-      <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossOrigin=""
-      ></script>
     </html>
   );
 }
