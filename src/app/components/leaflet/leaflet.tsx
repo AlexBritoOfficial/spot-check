@@ -46,7 +46,9 @@ export default function LeafLet({ spots }: LeafLetProps) {
 
   return (
     <div style={{ position: "relative", height: "100vh" }}>
+      {/* Filter Bar */}
       <FilterBar spots={allSpots} setSpotsFiltered={setSpotsFiltered} />
+      {/* Leaflet Map */}
       <MapContainer
         center={[42.361145, -71.057083]}
         zoom={13}
@@ -63,6 +65,7 @@ export default function LeafLet({ spots }: LeafLetProps) {
             if (showSpotDetailCard) {
               setShowSpotDetailCard(false);
             } else {
+              console.log(`Latitude: ${latlng.lat}, Longitude ${latlng.lng}`);
               setNewSpotLocation({ lat: latlng.lat, lng: latlng.lng });
               setShowNewSpotCard(true);
             }

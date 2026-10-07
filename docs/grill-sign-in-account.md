@@ -24,63 +24,122 @@ sign-in/account grilling session" — the design tree below is the state.
 - **Saved Spot**: confirmed as a real domain concept, not just UI copy
   (`CONTEXT.md` stub added, shape still open — see Q2/Q3 below).
 
-## Open — round 2 questions (not yet answered)
+## Resolved this session (round 3, 2026-10-07)
 
-**Q1 — Home city vs. Phase 10's "default to a city" fallback.**
-Roadmap Phase 10 done-criteria wants a hardcoded/default-city fallback when
-geolocation is denied. `User.home_city` looks like the natural source for
-that, but the round-1 answer to "what is home city for" said it's unrelated
-to map-centering. Flagged as a possible contradiction with the roadmap's own
-stated requirement.
-Recommendation: **(b)** — let `home_city` serve as the signed-in fallback;
-keep a hardcoded default only for signed-out/anonymous users.
+Alex reopened the Saved Spot concept with a concrete proposal (via the
+"Save Spot" button on `NewSpotCard`), which resolved several round-2
+questions and surfaced new ones:
 
-**Q2 — What does Saved Spot's "publicly displayed" boolean gate?**
-Two readings:
-(a) *Bookmark visibility* — whether other Users can see that this User saved
-this Spot (a public/private favorites list). `Spot`'s own visibility is
-untouched.
-(b) *Spot visibility* — whether the Spot itself stays hidden from the map for
-other Users (skate-culture "don't blow up my secret spot" pattern; echoes
-Phase 13's "gets you kicked out" status-flag idea).
-Recommendation: **(a)** — more literal reading of the original phrasing, and
-avoids two different fields on two different entities both claiming to
-control map visibility (Spot already has a `status` field for that).
+- **Round 2 Q3 (data shape) — resolved as (a).** `SavedSpot` is a
+  join-entity: `{ spotId, isPublic, savedAt }`. Not a raw ID array, and
+  not the full `Spot[]` copies `user.ts` had been storing — those go
+  stale the moment the original Spot is edited.
+- **Round 2 Q6 (does `Spot.owner` reference `User`) — resolved: yes.**
+  `Spot` gets `ownerId`, set to the creating User's id when they're signed
+  in at creation time, left unset (anonymous/public) when signed out.
+  Every Spot still persists either way.
+- **Round 2 Q2 (what the visibility boolean gates) — carried forward,
+  not re-litigated in words.** Adopting the join-entity shape wholesale
+  (including `isPublic`) keeps the original recommendation (a) —
+  *bookmark* visibility, not Spot visibility — but this wasn't explicitly
+  re-confirmed this session, just inherited by adopting the shape.
+- **New: ownership and bookmarking are explicitly split, not merged.**
+  Initial proposal was "signed-in creation also adds the new Spot to the
+  creator's own `savedSpots`." Refined instead to: `ownerId` is the sole
+  source of truth for authorship ("my spots" = filter `Spot` by
+  `ownerId`); `savedSpots` is reserved exclusively for bookmarking Spots
+  the User does *not* own. Matches round 1's original definition of Saved
+  Spot as "distinct from the Spot's existence on the map."
+- **New: `User` needs an `id` field.** `user.ts` had none — `ownerId`
+  needs something stable to reference (not `username`/`email`, which can
+  change).
+- **New: marker coloring is two-color, not three.** Default (public / not
+  owned by the current viewer) vs. a distinct color for "owned by the
+  signed-in viewer." A third color for "owned by a *different* specific
+  user" is explicitly deferred — needs real multi-user visibility that
+  doesn't exist until Phase 6+.
+- **New: where signed-in identity lives.** Only a `signedIn: boolean`
+  exists today, local to `SpotCheckNav.component.tsx`, never reaching
+  `LeafletMap`/`NewSpotCard`. Decision: lift the actual `User` (or at
+  least their `id`) to `page.tsx` — the common parent — and pass down as
+  props, mirroring the side menu's existing single-top-level-owner
+  pattern.
 
-**Q3 — Data shape for Saved Spot.**
-(a) A relationship/join entity: `{ user_id, spot_id, is_public, saved_at }`,
-mirroring what becomes a join table once Phase 6's real DB lands.
-(b) A raw array of Spot IDs on `User`, with the boolean living elsewhere.
-Recommendation: **(a)** — the boolean and a timestamp are per-save metadata
-that a raw ID array can't hold cleanly.
+None of the above is implemented in code yet — `user.ts`/`spot.ts` still
+need the `id`/`ownerId` fields and the `savedSpots` shape change;
+`leaflet.tsx` and `page.tsx` still need the wiring. See
+`October 7th Context.md` at the repo root for the full session writeup.
 
-**Q4 — Write the actual TypeScript shapes now, or just keep concepts in
-`CONTEXT.md`?**
-`spot.ts` already exists as a full type ahead of any database (Phase 1's
-"design to a data shape" principle).
-Recommendation: write `User` and `SavedSpot` types in `src/types/` now,
-mirroring `spot.ts`, so `CONTEXT.md` entries are verifiable against real code.
+## Resolved this session (round 4, 2026-10-07)
 
-**Q5 — Does `User` need both a display name and a handle, or does username
-serve both roles?**
-Sign-up form only collects **Username**; the mock profile shows a full
-**name** ("Rider Nguyen") *and* a separate **handle** ("@rider.nguyen").
-(a) Two fields: `name` (not collected at signup yet — a gap) + `username`.
-(b) One field: `username` does double duty; "Rider Nguyen" is just mock
-flavor, not a real field.
-Recommendation: **(b)** — don't design a field (`name`) the signup form
-doesn't even collect yet.
+Closed out round 2's remaining open items, plus new branches that came up
+reviewing round 3's decisions against the actual code:
 
-**Q6 — Does `Spot`'s eventual Phase 6 `owner` field reference `User`?**
-Confirming the obvious reading so `spot.ts` and the new `user.ts` are
-explicitly linked in `CONTEXT.md`'s relationships rather than looking like
-two unconnected files.
-Recommendation: yes.
+- **Q1 (home_city vs. Phase 10 fallback) — resolved (a).** Phase 10's
+  literal done-criteria ("denying it degrades gracefully — default to a
+  city") doesn't distinguish signed-in from signed-out, so this was a free
+  choice, not spec-mandated. Signed-in: center on `home_city`. Signed-out:
+  one fixed, hardcoded default coordinate (picked once, not re-randomized
+  per visit). `home_city` → lat/lng conversion stays mocked for now (see
+  Q7) — this is about *which* fallback applies, not how it's computed.
+- **Q2 (what `isPublic` gates) — resolved (b), reversing the round-3
+  carry-forward.** `isPublic` is **not** a bookmark-visibility flag; it's
+  Spot-level visibility, set by the owner at creation (defaults `true`;
+  signed-in Owners may set it `false` to keep a Spot visible only to
+  themselves). Moves `isPublic` off the bookmark join-entity entirely —
+  see Q9.
+- **Q5 (name vs. username) — resolved (a), reversing the round-2
+  recommendation.** `User` does need real name fields — but they already
+  exist as `Profile.firstName`/`lastName` (not a new flat `name` field).
+  The gap is that `CreateAccountModal` doesn't collect them yet; it should.
+- **Q5b (`handle`) — resolved (a).** Derived at render time as
+  `@${username}`, not a stored field.
+- **Q5c (mock avatar source) — resolved (a).** No upload flow yet;
+  `profileImage` stays unset and the avatar falls back to an initial
+  letter (from `firstName`) until a real upload step exists.
+- **Q6 (naming collision between "Save Spot" and the bookmark concept) —
+  resolved: rename the bookmark side, not the button.** `handleSaveSpot`
+  and the "Save Spot" button keep their names — they only ever create a
+  `Spot` (with or without `ownerId`) and never touch the bookmark list.
+  The bookmark concept itself is renamed instead: `SavedSpot` → `Bookmark`,
+  `User.savedSpots` → `User.bookmarkedSpots`, and the `SideMenu` nav item
+  "Saved spots" → "Bookmarks".
+- **Q7 (home_city geocoding) — resolved (a).** Stays mocked — no real
+  geocoding call in `CreateAccountModal` yet. Revisit once Phase 6
+  (persistence) or Phase 10 (geolocation) actually lands; real geocoding
+  is explicitly a "when it's the right time" item, not deferred
+  indefinitely.
+- **Q8 (do private owned Spots render on the map) — resolved (a).** Yes —
+  same pin, "owned by me" marker color, just invisible to everyone else's
+  map. They're not map-hidden just because they're private.
+- **Q9 (is `bookmarkedSpots` one array, or two sources combined) —
+  resolved (b).** `bookmarkedSpots` stays exactly what round 3 defined:
+  stored entries for Spots the User doesn't own, `{ spotId, savedAt }`,
+  added only by a (not-yet-built) manual bookmark action. The "Bookmarks"
+  page a signed-in User sees is `[...bookmarkedSpots, ...myPrivateSpots]`
+  — `myPrivateSpots` is a live filter (`ownerId === me && isPublic ===
+  false`), never written into the stored list. Chosen over auto-appending
+  on creation specifically to avoid the staleness problem round 3 already
+  rejected once (an entry going stale if the Spot's visibility changes
+  later).
 
-## Not yet touched (later rounds, once above resolves)
+Implemented this round: `src/types/user.ts` (`Bookmark` type,
+`bookmarkedSpots` field, stale `Spot` import removed) and the `SideMenu`
+nav label. **Still not implemented:** `spot.ts` needs `ownerId` made
+optional and an `isPublic` field added; `CreateAccountModal` needs
+firstName/lastName inputs; `leaflet.tsx`/`page.tsx` still need the
+signed-in-identity wiring from round 3; marker coloring and the
+"Bookmarks" page's combined view don't exist yet. All of that is
+functionality, not just types — deliberately left for an explicit ask
+rather than bundled into this round's doc sync.
+
+## Not yet touched
 
 - Whether `Review` (mentioned in `CONTEXT.md` as an anticipated term) needs
   its own shape decisions now or stays a named-only placeholder.
-- Any ADR-worthy write-up once the Saved Spot visibility model (Q2/Q3) is
-  locked in — it's a real trade-off, but not clearly "hard to reverse" yet
-  given nothing is persisted. Revisit once Phase 6 makes it real.
+- No bookmark UI exists yet — `SpotDetailCard` only has
+  Directions/Edit/Reviews, no action that would actually populate
+  `bookmarkedSpots`. Fully specified as of round 4, just not built.
+- Any ADR-worthy write-up of the Spot-visibility model (Q2/Q8/Q9) — a real
+  trade-off, but not clearly "hard to reverse" yet given nothing is
+  persisted. Revisit once Phase 6 makes it real.
