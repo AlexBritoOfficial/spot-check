@@ -50,7 +50,7 @@ function SideMenu({
 
           <div className={styles.navList}>
             <button className={styles.navItem}>My profile</button>
-            <button className={styles.navItem}>Saved spots</button>
+            <button className={styles.navItem}>Bookmarks</button>
             <button className={styles.navItem}>Notifications</button>
             <button className={styles.navItem}>Settings</button>
             <button

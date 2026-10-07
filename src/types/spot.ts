@@ -8,6 +8,7 @@ export type Difficulty = "beginner" | "intermediate" | "advanced" | "pro";
 
 export type Spot = {
   id: number;
+  ownerId?: number;
   name: string;
   city: string;
   spot_type: SpotType;
@@ -15,6 +16,7 @@ export type Spot = {
   features: Feature[];
   difficulty: Difficulty;
   is_skateable: boolean;
+  isPublic: boolean;
   rating: number;
   lat_lng: { lat: number; lng: number };
   photo?: string;

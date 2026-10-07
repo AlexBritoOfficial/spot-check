@@ -23,8 +23,10 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
     const features = formData.getAll("spotFeature") as Feature[];
     const difficulty = formData.get("difficulty") as Difficulty;
     const description = formData.get("description") as string;
+    const visibility = formData.get("visibility") as string;
 
     onSave({
+      ownerId: 0,
       name,
       city: "",
       spot_type,
@@ -32,6 +34,7 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
       features,
       difficulty,
       is_skateable: true,
+      isPublic: visibility !== "private",
       rating: 0,
       lat_lng: location,
       photo: "",
@@ -134,12 +137,35 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
           <label htmlFor="difficulty" className={styles.spotType}>
             Difficulty
           </label>
-          <select id="difficulty" name="difficulty" className={styles.select} required>
+          <select
+            id="difficulty"
+            name="difficulty"
+            className={styles.select}
+            required
+          >
             <option value="beginner">Beginner </option>
             <option value="intermediate">Intermediate </option>
             <option value="advanced">Advanced</option>
             <option value="pro">Pro </option>
           </select>
+
+          {/** Visibility */}
+          <h5 className={styles.spotType}>Visibility</h5>
+          <div className={styles.pillRow}>
+            <label className={styles.pill}>
+              <input
+                type="radio"
+                name="visibility"
+                value="public"
+                defaultChecked
+              />
+              PUBLIC
+            </label>
+            <label className={styles.pill}>
+              <input type="radio" name="visibility" value="private" />
+              PRIVATE
+            </label>
+          </div>
 
           {/*** Description */}
           <label className={styles.spotType}>Description</label>
@@ -155,8 +181,19 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
           <StarRating rating={0} />
 
           <div className={styles.actionRow}>
-            <Button type="submit" label="Save Spot" variant="primary" grow={1.3} />
-            <Button type="button" label="Cancel" variant="outline" grow={1} onClick={onClose} />
+            <Button
+              type="submit"
+              label="Save Spot"
+              variant="primary"
+              grow={1.3}
+            />
+            <Button
+              type="button"
+              label="Cancel"
+              variant="outline"
+              grow={1}
+              onClick={onClose}
+            />
           </div>
         </div>
       </div>
