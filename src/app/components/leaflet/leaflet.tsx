@@ -65,7 +65,6 @@ export default function LeafLet({ spots }: LeafLetProps) {
             if (showSpotDetailCard) {
               setShowSpotDetailCard(false);
             } else {
-              console.log(`Latitude: ${latlng.lat}, Longitude ${latlng.lng}`);
               setNewSpotLocation({ lat: latlng.lat, lng: latlng.lng });
               setShowNewSpotCard(true);
             }
