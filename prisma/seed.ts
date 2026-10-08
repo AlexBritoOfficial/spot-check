@@ -65,7 +65,7 @@ async function main() {
 
     await prisma.$executeRaw`
       UPDATE "Spot"
-      SET "lat_lng" = ST_SetSRID(ST_MakePoint(${mockSpot.lat_lng.lng}, ${mockSpot.lat_lng.lat}), 4326)
+      SET "latLng" = ST_SetSRID(ST_MakePoint(${mockSpot.lat_lng.lng}, ${mockSpot.lat_lng.lat}), 4326)
       WHERE "id" = ${spot.id}
     `;
   }
