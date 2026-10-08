@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs https//pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  extensions = [postgis]
+}
+
+enum SpotType {
+  park
+  street
+  diy
+}
+
+enum Feature {
+  ledge
+  rail
+  plaza
+  stairs
+  skatepark
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+  pro
+}
+
+enum Status{
+  active
+  pending
+  closed
+}
+
+model Spot {
+  id Int @id @default(autoincrement())
+  spotId String @unique @default(uuid())
+  name String
+  city String
+  spotType SpotType
+  description String?
+  features Feature[]
+  difficulty Difficulty
+  isSkateable Boolean
+  isPublic Boolean
+  rating Int
+  latLng Unsupported("geography(Point, 4326)")?
+  photo String?
+  status Status
+  createdAt DateTime
+  bookmarks Bookmark[]
+  ownerId String?
+  owner User? @relation(fields: [ownerId], references: [userId], onDelete: SetNull)
+  @@index([latLng], type: Gist)
+}
+
+model Profile {
+  id Int @id @default(autoincrement())
+  profileId String @unique @default(uuid())
+  firstName String
+  lastName String
+  homecity String
+  stance String
+  profileImage String
+  age Int
+  yearsSkating Int
+  filmer Boolean
+  userId String @unique
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+}
+
+model Bookmark {
+  id Int @id @default(autoincrement())
+  bookmarkId String @unique @default(uuid())
+  spotId String
+  savedAt DateTime
+  userId  String
+  user    User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  spot Spot @relation(fields: [spotId], references: [spotId], onDelete: Cascade)
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  userId String @unique @default(uuid())
+  username String
+  email String
+  password String
+  ownedSpots Spot[]
+  bookmarkedSpots Bookmark[]
+  myprofile Profile?
+}
