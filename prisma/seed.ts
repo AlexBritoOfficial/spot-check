@@ -25,6 +25,7 @@ async function main() {
   await prisma.user.deleteMany();
 
   const usersByUsername: Record<string, { userId: string }> = {};
+
   for (const mockUser of mockUsers) {
     const user = await prisma.user.create({
       data: {
@@ -39,7 +40,9 @@ async function main() {
   const spotsByName: Record<string, { id: number; spotId: string }> = {};
   for (const mockSpot of mockSpots) {
     const ownerUsername = spotOwnersByName[mockSpot.name];
-    const ownerId = ownerUsername ? usersByUsername[ownerUsername].userId : null;
+    const ownerId = ownerUsername
+      ? usersByUsername[ownerUsername].userId
+      : null;
 
     const spot = await prisma.spot.create({
       data: {
@@ -62,7 +65,7 @@ async function main() {
 
     await prisma.$executeRaw`
       UPDATE "Spot"
-      SET "latLng" = ST_SetSRID(ST_MakePoint(${mockSpot.lat_lng.lng}, ${mockSpot.lat_lng.lat}), 4326)
+      SET "lat_lng" = ST_SetSRID(ST_MakePoint(${mockSpot.lat_lng.lng}, ${mockSpot.lat_lng.lat}), 4326)
       WHERE "id" = ${spot.id}
     `;
   }
