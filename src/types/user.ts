@@ -1,6 +1,9 @@
+import { Spot } from "./spot";
+
 export type Profile = {
   firstName: string;
   lastName: string;
+  homecity: string;
   stance: string;
   profileImage: string;
   age: string;
@@ -18,7 +21,7 @@ export type User = {
   username: string;
   email: string;
   password: string;
-  homecity: string;
+  savedSpots: Spot[];
   bookmarkedSpots: Bookmark[];
   myprofile: Profile;
 };
