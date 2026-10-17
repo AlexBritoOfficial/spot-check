@@ -24,10 +24,13 @@ function SpotDetailCard({ spot }: SpotDetailCardProps) {
           <span className={styles.spotDistance}>0.4 mi</span>
         </div>
         <div className={styles.badgeRow}>
-          <Badge label={spot.spot_type.toUpperCase()} />
-          <Badge label={spot.difficulty.toUpperCase()} level={spot.difficulty} />
+          <Badge label={spot.spotType.toUpperCase()} />
+          <Badge
+            label={spot.difficulty.toUpperCase()}
+            level={spot.difficulty}
+          />
         </div>
-        <Indicator is_skateable={spot.is_skateable} />
+        <Indicator isSkateable={spot.isSkateable} />
         <p className={styles.description}>{spot.description}</p>
         <div className={styles.starRow}>
           <StarRating rating={spot.rating} />

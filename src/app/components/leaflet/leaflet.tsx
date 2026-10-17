@@ -74,7 +74,7 @@ export default function LeafLet({ spots }: LeafLetProps) {
         {spotsFiltered.map((spot) => (
           <Marker
             key={spot.id}
-            position={[spot.lat_lng.lat, spot.lat_lng.lng]}
+            position={[spot.latLng.lat, spot.latLng.lng]}
             icon={L.icon({
               iconUrl: "/assets/pin-default.png",
               iconSize: [32, 42],

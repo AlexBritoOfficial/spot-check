@@ -19,7 +19,7 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
     const formData = new FormData(e.currentTarget);
 
     const name = formData.get("name") as string;
-    const spot_type = formData.get("spotType") as SpotType;
+    const spotType = formData.get("spotType") as SpotType;
     const features = formData.getAll("spotFeature") as Feature[];
     const difficulty = formData.get("difficulty") as Difficulty;
     const description = formData.get("description") as string;
@@ -29,17 +29,17 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
       ownerId: 0,
       name,
       city: "",
-      spot_type,
+      spotType,
       description,
       features,
       difficulty,
-      is_skateable: true,
+      isSkateable: true,
       isPublic: visibility !== "private",
       rating: 0,
-      lat_lng: location,
+      latLng: location,
       photo: "",
       status: "active",
-      created_at: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     });
   }
 
