@@ -48,16 +48,16 @@ async function main() {
       data: {
         name: mockSpot.name,
         city: mockSpot.city,
-        spotType: mockSpot.spot_type,
+        spotType: mockSpot.spotType,
         description: mockSpot.description,
         features: mockSpot.features,
         difficulty: mockSpot.difficulty,
-        isSkateable: mockSpot.is_skateable,
+        isSkateable: mockSpot.isSkateable,
         isPublic: mockSpot.isPublic,
         rating: mockSpot.rating,
         photo: mockSpot.photo,
         status: mockSpot.status,
-        createdAt: new Date(mockSpot.created_at),
+        createdAt: new Date(mockSpot.createdAt),
         ownerId,
       },
     });
@@ -65,7 +65,7 @@ async function main() {
 
     await prisma.$executeRaw`
       UPDATE "Spot"
-      SET "latLng" = ST_SetSRID(ST_MakePoint(${mockSpot.lat_lng.lng}, ${mockSpot.lat_lng.lat}), 4326)
+      SET "latLng" = ST_SetSRID(ST_MakePoint(${mockSpot.latLng.lng}, ${mockSpot.latLng.lat}), 4326)
       WHERE "id" = ${spot.id}
     `;
   }

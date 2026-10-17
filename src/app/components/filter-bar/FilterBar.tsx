@@ -19,9 +19,9 @@ function FilterBar({ spots, setSpotsFiltered }: FilterBarProps) {
 
   useEffect(() => {
     const filteredSpots = spots.filter((spot) => {
-      const matchesType = spotTypeList.includes(spot.spot_type);
+      const matchesType = spotTypeList.includes(spot.spotType);
       const matchesFeature = spot.features.some((feature) =>
-        featureList.includes(feature)
+        featureList.includes(feature),
       );
       return matchesType && matchesFeature;
     });

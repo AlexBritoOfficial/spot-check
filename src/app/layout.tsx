@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { archivo_black } from "./lib/fonts";
+import Provider from "./components/providers/Provider";
 
 export const metadata: Metadata = {
   title: "Spot Check",
@@ -14,7 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${archivo_black.variable}`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Provider>{children}</Provider>
+      </body>
     </html>
   );
 }
