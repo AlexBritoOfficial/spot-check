@@ -2,7 +2,7 @@ import { Spot } from "@/types/spot";
 
 export const mockSpots: Spot[] = [
   {
-    id: 1,
+    id: "1",
     name: "Eggs",
     city: "Boston",
     spotType: "street",
@@ -18,7 +18,7 @@ export const mockSpots: Spot[] = [
     isPublic: true,
   },
   {
-    id: 2,
+    id: "2",
     name: "AQ",
     city: "Boston",
     spotType: "street",
@@ -34,7 +34,7 @@ export const mockSpots: Spot[] = [
     isPublic: true,
   },
   {
-    id: 3,
+    id: "3",
     name: "Copley Library",
     city: "Boston",
     spotType: "street",
@@ -50,7 +50,7 @@ export const mockSpots: Spot[] = [
     isPublic: true,
   },
   {
-    id: 4,
+    id: "4",
     name: "Lynch Family Skatepark",
     city: "Boston",
     spotType: "park",

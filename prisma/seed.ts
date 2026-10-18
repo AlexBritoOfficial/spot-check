@@ -3,8 +3,10 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { mockSpots } from "../src/app/data/mockSpots";
 import { mockUsers } from "../src/app/data/mockUsers";
 
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 
 const spotOwnersByName: Record<string, string> = {
   Eggs: "riderNguyen",
