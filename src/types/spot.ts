@@ -7,7 +7,7 @@ export type Status = "active" | "pending" | "closed";
 export type Difficulty = "beginner" | "intermediate" | "advanced" | "pro";
 
 export type Spot = {
-  id: number;
+  id: string;
   ownerId?: number;
   name: string;
   city: string;

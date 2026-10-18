@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -9,10 +9,7 @@ import NewSpotCard from "../card/NewSpotCard";
 import { useMapEvents } from "react-leaflet/hooks";
 import SpotDetailCard from "../card/SpotDetailCard";
 import FilterBar from "../filter-bar/FilterBar";
-
-interface LeafLetProps {
-  spots: Spot[];
-}
+import { useSpots } from "@/app/lib/useSpots";
 
 function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
   useMapEvents({
@@ -21,9 +18,11 @@ function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
   return null;
 }
 
-export default function LeafLet({ spots }: LeafLetProps) {
-  const [allSpots, setAllSpots] = useState<Spot[]>(spots);
-  const [spotsFiltered, setSpotsFiltered] = useState<Spot[]>(spots);
+export default function LeafLet() {
+  const { data: spots, isLoading, isError } = useSpots();
+
+  const [addedSpots, setAddedSpots] = useState<Spot[]>([]);
+  const [spotsFiltered, setSpotsFiltered] = useState<Spot[]>([]);
   const [showNewSpotCard, setShowNewSpotCard] = useState(false);
   const [showSpotDetailCard, setShowSpotDetailCard] = useState(false);
   const [spot, setSpot] = useState<Spot | null>(null);
@@ -32,16 +31,25 @@ export default function LeafLet({ spots }: LeafLetProps) {
     lng: number;
   } | null>(null);
 
+  const allSpots = useMemo(
+    () => [...(spots ?? []), ...addedSpots],
+    [spots, addedSpots],
+  );
+
   function handleSaveSpot(newSpot: Omit<Spot, "id">) {
-    setAllSpots((prevSpots) => {
-      const nextId =
-        prevSpots.length === 0
-          ? 1
-          : Math.max(...prevSpots.map((s) => s.id)) + 1;
-      return [...prevSpots, { ...newSpot, id: nextId }];
+    setAddedSpots((prevSpots) => {
+      return [...prevSpots, { ...newSpot, id: crypto.randomUUID() }];
     });
     setShowNewSpotCard(false);
     setNewSpotLocation(null);
+  }
+
+  if (isLoading) {
+    return <div>Loading spots...</div>;
+  }
+
+  if (isError) {
+    return <div>Failed to load spots.</div>;
   }
 
   return (
