@@ -19,7 +19,7 @@ function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
 }
 
 export default function LeafLet() {
-  const { data: spots, isLoading, isError } = useSpots();
+  const { data: spots, isLoading, isError, error } = useSpots();
 
   const [addedSpots, setAddedSpots] = useState<Spot[]>([]);
   const [spotsFiltered, setSpotsFiltered] = useState<Spot[]>([]);
@@ -49,7 +49,7 @@ export default function LeafLet() {
   }
 
   if (isError) {
-    return <div>Failed to load spots.</div>;
+    return <div>{error.message}</div>;
   }
 
   return (

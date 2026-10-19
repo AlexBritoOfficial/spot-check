@@ -49,24 +49,11 @@ export async function GET() {
         FROM "Spot" 
     `;
 
-  const spots: Spot[] = rawSpots.map((spot) => {
-    return {
-      id: spot.spotId,
-      name: spot.name,
-      city: spot.city,
-      spotType: spot.spotType,
-      description: spot.description,
-      features: spot.features,
-      difficulty: spot.difficulty,
-      isSkateable: spot.isSkateable,
-      isPublic: spot.isPublic,
-      rating: spot.rating,
-      latLng: { lat: spot.lat, lng: spot.lng },
-      photo: spot.photo,
-      status: spot.status,
-      createdAt: spot.createdAt,
-    };
-  });
+  const spots: Spot[] = rawSpots.map(({ spotId, lat, lng, ...rest }) => ({
+    ...rest,
+    id: spotId,
+    latLng: { lat, lng },
+  }));
 
   return NextResponse.json(spots);
 }
