@@ -35,13 +35,13 @@ export async function GET() {
                 "city", 
                 "spotType",
                 "description",
-                "features",
+                "features"::text[] AS features,
                 "difficulty",
                 "isSkateable",
                 "isPublic",
                 "rating",
-                ST_X("latLng") AS lng,
-                ST_Y("latLng") AS lat,
+                ST_X("latLng"::geometry) AS lng,
+                ST_Y("latLng"::geometry) AS lat,
                 "photo",
                 "status",
                 "createdAt"
@@ -49,24 +49,11 @@ export async function GET() {
         FROM "Spot" 
     `;
 
-  const spots: Spot[] = rawSpots.map((spot) => {
-    return {
-      id: spot.spotId,
-      name: spot.name,
-      city: spot.city,
-      spotType: spot.spotType,
-      description: spot.description,
-      features: spot.features,
-      difficulty: spot.difficulty,
-      isSkateable: spot.isSkateable,
-      isPublic: spot.isPublic,
-      rating: spot.rating,
-      latLng: { lat: spot.lat, lng: spot.lng },
-      photo: spot.photo,
-      status: spot.status,
-      createdAt: spot.createdAt,
-    };
-  });
+  const spots: Spot[] = rawSpots.map(({ spotId, lat, lng, ...rest }) => ({
+    ...rest,
+    id: spotId,
+    latLng: { lat, lng },
+  }));
 
   return NextResponse.json(spots);
 }

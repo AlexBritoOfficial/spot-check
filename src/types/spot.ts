@@ -1,10 +1,11 @@
-export type SpotType = "park" | "street" | "diy";
+import type {
+  SpotType,
+  Feature,
+  Status,
+  Difficulty,
+} from "@/generated/prisma/enums";
 
-export type Feature = "ledge" | "rail" | "plaza" | "stairs" | "skatepark";
-
-export type Status = "active" | "pending" | "closed";
-
-export type Difficulty = "beginner" | "intermediate" | "advanced" | "pro";
+export type { SpotType, Feature, Status, Difficulty };
 
 export type Spot = {
   id: string;
