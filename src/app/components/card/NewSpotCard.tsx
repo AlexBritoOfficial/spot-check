@@ -1,5 +1,6 @@
 "use client";
 
+import { spotSchema } from "@/app/lib/spotSchema";
 import Button from "../button/Button.component";
 import CloseButton from "../button/closebutton/CloseButton.component";
 import StarRating from "../starrating/StarRating";
@@ -11,9 +12,17 @@ interface NewSpotCardProps {
   onClose: () => void;
   location: { lat: number; lng: number };
   onSave: (spot: Omit<Spot, "id">) => void;
+  isPending: boolean;
+  error: Error | null;
 }
 
-function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
+function NewSpotCard({
+  onClose,
+  location,
+  onSave,
+  isPending,
+  error,
+}: NewSpotCardProps) {
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -26,7 +35,6 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
     const visibility = formData.get("visibility") as string;
 
     onSave({
-      ownerId: 0,
       name,
       city: "",
       spotType,
@@ -180,10 +188,12 @@ function NewSpotCard({ onClose, location, onSave }: NewSpotCardProps) {
           <h5 className={styles.spotType}>Rating</h5>
           <StarRating rating={0} />
 
+          {error && <p className={styles.errorMessage}>{error.message}</p>}
+
           <div className={styles.actionRow}>
             <Button
               type="submit"
-              label="Save Spot"
+              label={isPending ? "Saving..." : "Save Spot"}
               variant="primary"
               grow={1.3}
             />

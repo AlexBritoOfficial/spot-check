@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -10,6 +10,7 @@ import { useMapEvents } from "react-leaflet/hooks";
 import SpotDetailCard from "../card/SpotDetailCard";
 import FilterBar from "../filter-bar/FilterBar";
 import { useSpots } from "@/app/lib/useSpots";
+import { useCreateSpot } from "@/app/lib/useCreateSpot";
 
 function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
   useMapEvents({
@@ -20,8 +21,12 @@ function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
 
 export default function LeafLet() {
   const { data: spots, isLoading, isError, error } = useSpots();
+  const {
+    mutate: createSpot,
+    isPending: isCreatingSpot,
+    error: createSpotError,
+  } = useCreateSpot();
 
-  const [addedSpots, setAddedSpots] = useState<Spot[]>([]);
   const [spotsFiltered, setSpotsFiltered] = useState<Spot[]>([]);
   const [showNewSpotCard, setShowNewSpotCard] = useState(false);
   const [showSpotDetailCard, setShowSpotDetailCard] = useState(false);
@@ -31,17 +36,13 @@ export default function LeafLet() {
     lng: number;
   } | null>(null);
 
-  const allSpots = useMemo(
-    () => [...(spots ?? []), ...addedSpots],
-    [spots, addedSpots],
-  );
-
   function handleSaveSpot(newSpot: Omit<Spot, "id">) {
-    setAddedSpots((prevSpots) => {
-      return [...prevSpots, { ...newSpot, id: crypto.randomUUID() }];
+    createSpot(newSpot, {
+      onSuccess: () => {
+        setShowNewSpotCard(false);
+        setNewSpotLocation(null);
+      },
     });
-    setShowNewSpotCard(false);
-    setNewSpotLocation(null);
   }
 
   if (isLoading) {
@@ -55,7 +56,7 @@ export default function LeafLet() {
   return (
     <div style={{ position: "relative", height: "100vh" }}>
       {/* Filter Bar */}
-      <FilterBar spots={allSpots} setSpotsFiltered={setSpotsFiltered} />
+      <FilterBar spots={spots ?? []} setSpotsFiltered={setSpotsFiltered} />
       {/* Leaflet Map */}
       <MapContainer
         center={[42.361145, -71.057083]}
@@ -118,6 +119,8 @@ export default function LeafLet() {
             }}
             location={newSpotLocation}
             onSave={handleSaveSpot}
+            isPending={isCreatingSpot}
+            error={createSpotError}
           />
         </div>
       )}

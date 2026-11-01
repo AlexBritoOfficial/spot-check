@@ -18,5 +18,20 @@ function toSpots(json: unknown): Spot[] {
 
 // Phase 8 wires this into NewSpotCard's onSave via useMutation.
 export async function createSpot(spot: Omit<Spot, "id">): Promise<Spot> {
-  throw new Error("createSpot is not implemented yet");
+  const response = await fetch("/api/spots", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(spot),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      typeof body?.error === "string"
+        ? body.error
+        : JSON.stringify(body?.error);
+    throw new Error(message ?? `Request failed with status ${response.status}`);
+  }
+
+  return response.json();
 }

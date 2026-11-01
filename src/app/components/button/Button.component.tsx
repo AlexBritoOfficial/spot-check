@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./Button.module.css";
 
 type ButtonVariant = "primary" | "outline";
@@ -10,7 +12,13 @@ type ButtonProps = {
   onClick?: () => void;
 };
 
-function Button({ label, variant = "primary", grow, type, onClick }: ButtonProps) {
+function Button({
+  label,
+  variant = "primary",
+  grow,
+  type,
+  onClick,
+}: ButtonProps) {
   return (
     <button
       type={type}

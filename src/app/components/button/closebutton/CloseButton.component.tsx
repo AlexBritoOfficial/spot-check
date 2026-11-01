@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./CloseButton.module.css";
 
 interface CloseButtonProps {
