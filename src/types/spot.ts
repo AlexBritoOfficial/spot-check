@@ -9,7 +9,7 @@ export type { SpotType, Feature, Status, Difficulty };
 
 export type Spot = {
   id: string;
-  ownerId?: number;
+  ownerId?: string;
   name: string;
   city: string;
   spotType: SpotType;

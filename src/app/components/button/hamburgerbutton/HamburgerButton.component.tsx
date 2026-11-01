@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./HamburgerButton.module.css";
 
 interface HamburgerButtonProps {
