@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Spot } from "@/types/spot";
 import NewSpotCard from "../card/NewSpotCard";
-import { useMapEvents } from "react-leaflet/hooks";
+import { useMap, useMapEvents } from "react-leaflet/hooks";
 import SpotDetailCard from "../card/SpotDetailCard";
 import ConfirmDialog from "../confirm-dialog/ConfirmDialog";
 import FilterBar from "../filter-bar/FilterBar";
@@ -14,6 +14,9 @@ import { useSpots } from "@/app/lib/useSpots";
 import { useCreateSpot } from "@/app/lib/useCreateSpot";
 import { useUpdateSpot } from "@/app/lib/useUpdateSpot";
 import { useDeleteSpot } from "@/app/lib/useDeleteSpot";
+import { useGeolocation } from "@/app/lib/useGeolocation";
+
+const DEFAULT_CITY = { lat: 42.361145, lng: -71.057083 };
 
 function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
   useMapEvents({
@@ -22,8 +25,18 @@ function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
   return null;
 }
 
+function RecenterMap({ center }: { center: { lat: number; lng: number } }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView([center.lat, center.lng]);
+  }, [map, center.lat, center.lng]);
+  return null;
+}
+
 export default function LeafLet() {
-  const { data: spots, isLoading, isError, error } = useSpots();
+  const { coords, status: geoStatus } = useGeolocation();
+  const effectiveLocation = coords ?? DEFAULT_CITY;
+  const { data: spots, isLoading, isError, error } = useSpots(effectiveLocation);
   const {
     mutate: createSpot,
     isPending: isCreatingSpot,
@@ -106,7 +119,7 @@ export default function LeafLet() {
       <FilterBar spots={spots ?? []} setSpotsFiltered={setSpotsFiltered} />
       {/* Leaflet Map */}
       <MapContainer
-        center={[42.361145, -71.057083]}
+        center={[DEFAULT_CITY.lat, DEFAULT_CITY.lng]}
         zoom={13}
         style={{ height: "100%" }}
         touchZoom={false}
@@ -126,6 +139,22 @@ export default function LeafLet() {
             }
           }}
         />
+
+        {geoStatus === "granted" && coords && (
+          <>
+            <RecenterMap center={coords} />
+            <Marker
+              position={[coords.lat, coords.lng]}
+              icon={L.icon({
+                iconUrl: "/assets/marker-you-are-here.png",
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+              })}
+            >
+              <Popup>You are here</Popup>
+            </Marker>
+          </>
+        )}
 
         {spotsFiltered.map((spot) => (
           <Marker

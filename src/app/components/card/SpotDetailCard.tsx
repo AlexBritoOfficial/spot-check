@@ -7,6 +7,8 @@ import Indicator from "../indicator/Indicator";
 import StarRating from "../starrating/StarRating";
 import styles from "./SpotDetailCard.module.css";
 
+const METERS_PER_MILE = 1609.344;
+
 interface SpotDetailCardProps {
   spot: Spot;
   onEdit: () => void;
@@ -23,7 +25,11 @@ function SpotDetailCard({ spot, onEdit, onDelete }: SpotDetailCardProps) {
       <div className={styles.spotDetail}>
         <div className={styles.firstRow}>
           <h3 className={styles.spotName}>{spot.name}</h3>
-          <span className={styles.spotDistance}>0.4 mi</span>
+          {spot.distanceMeters !== undefined && (
+            <span className={styles.spotDistance}>
+              {(spot.distanceMeters / METERS_PER_MILE).toFixed(1)} mi
+            </span>
+          )}
         </div>
         <div className={styles.badgeRow}>
           <Badge label={spot.spotType.toUpperCase()} />

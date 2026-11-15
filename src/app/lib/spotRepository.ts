@@ -1,7 +1,21 @@
 import { Spot } from "@/types/spot";
 
-export async function getSpots(): Promise<Spot[]> {
-  const response = await fetch("/api/spots");
+export interface NearbyParams {
+  lat: number;
+  lng: number;
+  radius?: number;
+}
+
+export async function getSpots(nearby?: NearbyParams): Promise<Spot[]> {
+  const query = nearby
+    ? `?${new URLSearchParams({
+        lat: String(nearby.lat),
+        lng: String(nearby.lng),
+        ...(nearby.radius !== undefined && { radius: String(nearby.radius) }),
+      })}`
+    : "";
+
+  const response = await fetch(`/api/spots${query}`);
 
   if (!response.ok) {
     throw new Error(`HTTP Error: Status ${response.status}`);
