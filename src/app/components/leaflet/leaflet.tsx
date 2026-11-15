@@ -114,14 +114,14 @@ export default function LeafLet() {
   }
 
   return (
-    <div style={{ position: "relative", height: "100vh" }}>
+    <div className="relative flex flex-1 min-h-0 flex-col">
       {/* Filter Bar */}
       <FilterBar spots={spots ?? []} setSpotsFiltered={setSpotsFiltered} />
       {/* Leaflet Map */}
       <MapContainer
         center={[DEFAULT_CITY.lat, DEFAULT_CITY.lng]}
         zoom={13}
-        style={{ height: "100%" }}
+        style={{ flex: 1, minHeight: 0 }}
         touchZoom={false}
       >
         <TileLayer
