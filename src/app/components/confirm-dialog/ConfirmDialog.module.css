@@ -1,0 +1,52 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal {
+  width: 360px;
+  max-width: 100%;
+  background: var(--color-bg-nav);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  padding: 22px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.message {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.errorMessage {
+  font-size: 13px;
+  color: var(--color-danger);
+  margin-top: 10px;
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}

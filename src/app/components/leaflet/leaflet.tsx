@@ -8,9 +8,12 @@ import { Spot } from "@/types/spot";
 import NewSpotCard from "../card/NewSpotCard";
 import { useMapEvents } from "react-leaflet/hooks";
 import SpotDetailCard from "../card/SpotDetailCard";
+import ConfirmDialog from "../confirm-dialog/ConfirmDialog";
 import FilterBar from "../filter-bar/FilterBar";
 import { useSpots } from "@/app/lib/useSpots";
 import { useCreateSpot } from "@/app/lib/useCreateSpot";
+import { useUpdateSpot } from "@/app/lib/useUpdateSpot";
+import { useDeleteSpot } from "@/app/lib/useDeleteSpot";
 
 function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
   useMapEvents({
@@ -26,21 +29,65 @@ export default function LeafLet() {
     isPending: isCreatingSpot,
     error: createSpotError,
   } = useCreateSpot();
+  const {
+    mutate: updateSpot,
+    isPending: isUpdatingSpot,
+    error: updateSpotError,
+  } = useUpdateSpot();
+  const {
+    mutate: deleteSpot,
+    isPending: isDeletingSpot,
+    error: deleteSpotError,
+  } = useDeleteSpot();
 
   const [spotsFiltered, setSpotsFiltered] = useState<Spot[]>([]);
   const [showNewSpotCard, setShowNewSpotCard] = useState(false);
   const [showSpotDetailCard, setShowSpotDetailCard] = useState(false);
+  const [showEditSpotCard, setShowEditSpotCard] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [spot, setSpot] = useState<Spot | null>(null);
   const [newSpotLocation, setNewSpotLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
 
+  const isOverlayOpen =
+    showSpotDetailCard || showEditSpotCard || showDeleteConfirm;
+
+  function closeOverlays() {
+    setShowSpotDetailCard(false);
+    setShowEditSpotCard(false);
+    setShowDeleteConfirm(false);
+  }
+
   function handleSaveSpot(newSpot: Omit<Spot, "id">) {
     createSpot(newSpot, {
       onSuccess: () => {
         setShowNewSpotCard(false);
         setNewSpotLocation(null);
+      },
+    });
+  }
+
+  function handleEditSpot(updatedSpot: Omit<Spot, "id">) {
+    if (!spot) return;
+    updateSpot(
+      { id: spot.id, spot: updatedSpot },
+      {
+        onSuccess: (savedSpot) => {
+          setSpot(savedSpot);
+          setShowEditSpotCard(false);
+        },
+      },
+    );
+  }
+
+  function handleConfirmDelete() {
+    if (!spot) return;
+    deleteSpot(spot.id, {
+      onSuccess: () => {
+        closeOverlays();
+        setSpot(null);
       },
     });
   }
@@ -71,8 +118,8 @@ export default function LeafLet() {
 
         <MapEvents
           onMapClick={(latlng) => {
-            if (showSpotDetailCard) {
-              setShowSpotDetailCard(false);
+            if (isOverlayOpen) {
+              closeOverlays();
             } else {
               setNewSpotLocation({ lat: latlng.lat, lng: latlng.lng });
               setShowNewSpotCard(true);
@@ -125,7 +172,7 @@ export default function LeafLet() {
         </div>
       )}
 
-      {showSpotDetailCard && spot && (
+      {showEditSpotCard && spot && (
         <div
           style={{
             position: "absolute",
@@ -134,9 +181,48 @@ export default function LeafLet() {
             zIndex: 1000,
           }}
         >
-          <SpotDetailCard spot={spot} />
+          <NewSpotCard
+            onClose={() => setShowEditSpotCard(false)}
+            location={spot.latLng}
+            initialSpot={spot}
+            onSave={handleEditSpot}
+            isPending={isUpdatingSpot}
+            error={updateSpotError}
+          />
         </div>
       )}
+
+      {showSpotDetailCard && !showEditSpotCard && spot && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "20px",
+            zIndex: 1000,
+          }}
+        >
+          <SpotDetailCard
+            spot={spot}
+            onEdit={() => setShowEditSpotCard(true)}
+            onDelete={() => setShowDeleteConfirm(true)}
+          />
+        </div>
+      )}
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete spot?"
+        message={
+          spot
+            ? `Delete "${spot.name}"? This can't be undone.`
+            : "This can't be undone."
+        }
+        confirmLabel="Delete"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+        isPending={isDeletingSpot}
+        error={deleteSpotError}
+      />
     </div>
   );
 }

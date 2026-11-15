@@ -1,6 +1,5 @@
 "use client";
 
-import { spotSchema } from "@/app/lib/spotSchema";
 import Button from "../button/Button.component";
 import CloseButton from "../button/closebutton/CloseButton.component";
 import StarRating from "../starrating/StarRating";
@@ -14,6 +13,7 @@ interface NewSpotCardProps {
   onSave: (spot: Omit<Spot, "id">) => void;
   isPending: boolean;
   error: Error | null;
+  initialSpot?: Spot;
 }
 
 function NewSpotCard({
@@ -22,7 +22,10 @@ function NewSpotCard({
   onSave,
   isPending,
   error,
+  initialSpot,
 }: NewSpotCardProps) {
+  const isEditing = initialSpot !== undefined;
+
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -36,36 +39,42 @@ function NewSpotCard({
 
     onSave({
       name,
-      city: "",
+      city: initialSpot?.city ?? "",
       spotType,
       description,
       features,
       difficulty,
-      isSkateable: true,
+      isSkateable: initialSpot?.isSkateable ?? true,
       isPublic: visibility !== "private",
-      rating: 0,
+      rating: initialSpot?.rating ?? 0,
       latLng: location,
-      photo: "",
-      status: "active",
-      createdAt: new Date().toISOString(),
+      photo: initialSpot?.photo ?? "",
+      status: initialSpot?.status ?? "active",
+      createdAt: initialSpot?.createdAt ?? new Date().toISOString(),
     });
   }
 
   return (
-    // Card container — the whole "Add a new spot" panel
+    // Card container — the whole "Add a new spot" / "Edit spot" panel
     <form className={styles.root} onSubmit={handleSubmit}>
       {/* Header row: card title + close button */}
       <div className={styles.firstrow}>
-        <label className={styles.cardTitle}>ADD A NEW SPOT</label>
+        <label className={styles.cardTitle}>
+          {isEditing ? "EDIT SPOT" : "ADD A NEW SPOT"}
+        </label>
         <CloseButton onClick={onClose} />
       </div>
 
-      {/* Status hint: tells the user where the pin currently sits */}
-      <div className={styles.secondrow}>
-        <span className={styles.pinned}>
-          Pinned at clicked location · click map to move
-        </span>
-      </div>
+      {/* Status hint: tells the user where the pin currently sits.
+          Repositioning isn't supported while editing, so the "click map
+          to move" hint only applies to a brand-new spot. */}
+      {!isEditing && (
+        <div className={styles.secondrow}>
+          <span className={styles.pinned}>
+            Pinned at clicked location · click map to move
+          </span>
+        </div>
+      )}
 
       {/* Image area: placeholder box for the spot photo upload */}
       <div className={styles.thirdrow}>
@@ -91,6 +100,7 @@ function NewSpotCard({
               name="name"
               placeholder="e.g Riverside Bowl"
               type="text"
+              defaultValue={initialSpot?.name}
               className={styles.spotNameInput}
               aria-label="Spot Name"
               required
@@ -103,15 +113,31 @@ function NewSpotCard({
             {/* Each label is a pill; the radio inside is visually hidden.
                 Shared name="spotType" makes them mutually exclusive. */}
             <label className={styles.pill}>
-              <input type="radio" name="spotType" value="park" required />
+              <input
+                type="radio"
+                name="spotType"
+                value="park"
+                defaultChecked={initialSpot?.spotType === "park"}
+                required
+              />
               PARK
             </label>
             <label className={styles.pill}>
-              <input type="radio" name="spotType" value="street" />
+              <input
+                type="radio"
+                name="spotType"
+                value="street"
+                defaultChecked={initialSpot?.spotType === "street"}
+              />
               STREET
             </label>
             <label className={styles.pill}>
-              <input type="radio" name="spotType" value="diy" />
+              <input
+                type="radio"
+                name="spotType"
+                value="diy"
+                defaultChecked={initialSpot?.spotType === "diy"}
+              />
               DIY
             </label>
           </div>
@@ -120,23 +146,48 @@ function NewSpotCard({
             {/* Each label is a pill; the checkbox inside is visually hidden.
                 These are NOT mutually exclusive — a spot can have many features. */}
             <label className={styles.pill}>
-              <input type="checkbox" name="spotFeature" value="ledge" />
+              <input
+                type="checkbox"
+                name="spotFeature"
+                value="ledge"
+                defaultChecked={initialSpot?.features.includes("ledge")}
+              />
               LEDGE
             </label>
             <label className={styles.pill}>
-              <input type="checkbox" name="spotFeature" value="rail" />
+              <input
+                type="checkbox"
+                name="spotFeature"
+                value="rail"
+                defaultChecked={initialSpot?.features.includes("rail")}
+              />
               RAIL
             </label>
             <label className={styles.pill}>
-              <input type="checkbox" name="spotFeature" value="plaza" />
+              <input
+                type="checkbox"
+                name="spotFeature"
+                value="plaza"
+                defaultChecked={initialSpot?.features.includes("plaza")}
+              />
               PLAZA
             </label>
             <label className={styles.pill}>
-              <input type="checkbox" name="spotFeature" value="stairs" />
+              <input
+                type="checkbox"
+                name="spotFeature"
+                value="stairs"
+                defaultChecked={initialSpot?.features.includes("stairs")}
+              />
               STAIRS
             </label>
             <label className={styles.pill}>
-              <input type="checkbox" name="spotFeature" value="skatepark" />
+              <input
+                type="checkbox"
+                name="spotFeature"
+                value="skatepark"
+                defaultChecked={initialSpot?.features.includes("skatepark")}
+              />
               SKATEPARK
             </label>
           </div>
@@ -149,6 +200,7 @@ function NewSpotCard({
             id="difficulty"
             name="difficulty"
             className={styles.select}
+            defaultValue={initialSpot?.difficulty}
             required
           >
             <option value="beginner">Beginner </option>
@@ -165,12 +217,17 @@ function NewSpotCard({
                 type="radio"
                 name="visibility"
                 value="public"
-                defaultChecked
+                defaultChecked={initialSpot?.isPublic ?? true}
               />
               PUBLIC
             </label>
             <label className={styles.pill}>
-              <input type="radio" name="visibility" value="private" />
+              <input
+                type="radio"
+                name="visibility"
+                value="private"
+                defaultChecked={initialSpot?.isPublic === false}
+              />
               PRIVATE
             </label>
           </div>
@@ -181,19 +238,23 @@ function NewSpotCard({
             className={styles.textarea}
             name="description"
             rows={3}
+            defaultValue={initialSpot?.description}
             placeholder="What makes this spot worth skating?"
           ></textarea>
 
-          {/* Rating: static for now, no spot exists yet to have a rating */}
+          {/* Rating: read-only display here — there's no rating input yet,
+              so an existing spot's rating just carries through unedited. */}
           <h5 className={styles.spotType}>Rating</h5>
-          <StarRating rating={0} />
+          <StarRating rating={initialSpot?.rating ?? 0} />
 
           {error && <p className={styles.errorMessage}>{error.message}</p>}
 
           <div className={styles.actionRow}>
             <Button
               type="submit"
-              label={isPending ? "Saving..." : "Save Spot"}
+              label={
+                isPending ? "Saving..." : isEditing ? "Save Changes" : "Save Spot"
+              }
               variant="primary"
               grow={1.3}
             />

@@ -9,9 +9,11 @@ import styles from "./SpotDetailCard.module.css";
 
 interface SpotDetailCardProps {
   spot: Spot;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-function SpotDetailCard({ spot }: SpotDetailCardProps) {
+function SpotDetailCard({ spot, onEdit, onDelete }: SpotDetailCardProps) {
   return (
     <div className={styles.root}>
       {/* Photo area: read-only placeholder, no upload affordance */}
@@ -36,9 +38,17 @@ function SpotDetailCard({ spot }: SpotDetailCardProps) {
           <StarRating rating={spot.rating} />
         </div>
         <div className={styles.actionRow}>
-          <Button label="Directions" variant="primary" grow={1.3} />
-          <Button label="Edit" variant="outline" grow={1} />
-          <Button label="Reviews" variant="outline" grow={1} />
+          <Button label="Directions" variant="primary" />
+          <div className={styles.secondaryActionRow}>
+            <Button label="Edit" variant="outline" grow={1} onClick={onEdit} />
+            <Button label="Reviews" variant="outline" grow={1} />
+            <Button
+              label="Delete"
+              variant="danger"
+              grow={1}
+              onClick={onDelete}
+            />
+          </div>
         </div>
       </div>
     </div>
