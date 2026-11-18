@@ -13,9 +13,21 @@ interface SpotDetailCardProps {
   spot: Spot;
   onEdit: () => void;
   onDelete: () => void;
+  onDirections: () => void;
+  isDirectionsPending?: boolean;
+  directionsError?: Error | null;
+  directionsSummary?: { distanceMeters: number; durationSeconds: number } | null;
 }
 
-function SpotDetailCard({ spot, onEdit, onDelete }: SpotDetailCardProps) {
+function SpotDetailCard({
+  spot,
+  onEdit,
+  onDelete,
+  onDirections,
+  isDirectionsPending,
+  directionsError,
+  directionsSummary,
+}: SpotDetailCardProps) {
   return (
     <div className={styles.root}>
       {/* Drag handle: phone-only visual, signals this is a sheet you can
@@ -48,8 +60,21 @@ function SpotDetailCard({ spot, onEdit, onDelete }: SpotDetailCardProps) {
         <div className={styles.starRow}>
           <StarRating rating={spot.rating} />
         </div>
+        {directionsSummary && (
+          <p className={styles.directionsSummary}>
+            {(directionsSummary.distanceMeters / METERS_PER_MILE).toFixed(1)}{" "}
+            mi · {Math.round(directionsSummary.durationSeconds / 60)} min
+          </p>
+        )}
+        {directionsError && (
+          <p className={styles.errorMessage}>{directionsError.message}</p>
+        )}
         <div className={styles.actionRow}>
-          <Button label="Directions" variant="primary" />
+          <Button
+            label={isDirectionsPending ? "Loading..." : "Directions"}
+            variant="primary"
+            onClick={onDirections}
+          />
           <div className={styles.secondaryActionRow}>
             <Button label="Edit" variant="outline" grow={1} onClick={onEdit} />
             <Button label="Reviews" variant="outline" grow={1} />
