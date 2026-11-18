@@ -106,19 +106,6 @@
   margin-top: 10px;
 }
 
-.directionsSummary {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-accent);
-  margin-top: 10px;
-}
-
-.errorMessage {
-  font-size: 13px;
-  color: var(--color-danger);
-  margin-top: 10px;
-}
-
 .actionRow {
   display: flex;
   flex-direction: column;
