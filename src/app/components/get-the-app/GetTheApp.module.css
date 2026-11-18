@@ -1,0 +1,76 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100dvh;
+  padding: 32px 24px;
+  gap: 16px;
+  background: var(--color-bg-page);
+}
+
+.title {
+  display: flex;
+  font-family: var(--font-archivo-black);
+  font-size: 32px;
+}
+
+.white {
+  color: var(--color-text);
+}
+
+.gold {
+  color: var(--color-accent);
+}
+
+.message {
+  max-width: 320px;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.badgeRow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+  max-width: 260px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--color-bg-nav);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.badgeIcon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.badgeText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.badgeSmall {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.badgeBig {
+  font-family: var(--font-archivo-black);
+  font-size: 16px;
+}
