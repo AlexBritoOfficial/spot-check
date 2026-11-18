@@ -8,7 +8,11 @@ import Button from "../button/Button.component";
 import SideMenu from "../sidemenu/SideMenu";
 import CreateAccountModal from "../sidemenu/CreateAccountModal";
 
-export default function SpotCheckNav() {
+interface SpotCheckNavProps {
+  onLocationFound: (location: { lat: number; lng: number }) => void;
+}
+
+export default function SpotCheckNav({ onLocationFound }: SpotCheckNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
@@ -42,7 +46,7 @@ export default function SpotCheckNav() {
             <span className={styles.white}>SPOT</span>
             <span className={styles.gold}>CHECK</span>
           </div>
-          <SearchBox />
+          <SearchBox onLocationFound={onLocationFound} />
         </div>
         <Button label="+ Add Spot" variant="primary" />
       </nav>
