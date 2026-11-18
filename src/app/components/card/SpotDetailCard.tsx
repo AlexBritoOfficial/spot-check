@@ -15,6 +15,15 @@ interface SpotDetailCardProps {
   onDelete: () => void;
 }
 
+function openInMaps(spot: Spot) {
+  const { lat, lng } = spot.latLng;
+  window.open(
+    `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+    "_blank",
+    "noopener,noreferrer",
+  );
+}
+
 function SpotDetailCard({ spot, onEdit, onDelete }: SpotDetailCardProps) {
   return (
     <div className={styles.root}>
@@ -49,7 +58,11 @@ function SpotDetailCard({ spot, onEdit, onDelete }: SpotDetailCardProps) {
           <StarRating rating={spot.rating} />
         </div>
         <div className={styles.actionRow}>
-          <Button label="Directions" variant="primary" />
+          <Button
+            label="Open in Maps"
+            variant="primary"
+            onClick={() => openInMaps(spot)}
+          />
           <div className={styles.secondaryActionRow}>
             <Button label="Edit" variant="outline" grow={1} onClick={onEdit} />
             <Button label="Reviews" variant="outline" grow={1} />
