@@ -1,0 +1,176 @@
+.mapContainer {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.statusBanner {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 998;
+  background: var(--color-bg-nav);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Spot pins: a teardrop (square, one corner rounded off, rotated -45deg),
+   anchored at the bottom tip so it points at the exact coordinate. The
+   label is a sibling of the rotated shape, not a child, so it doesn't
+   need a counter-rotation to read upright. */
+/* Wrapper height is the shape's own size *plus* (√2-1)/2 of it: rotating a
+   square 45° makes its visual tip extend past its own unrotated box by that
+   much. MapLibre's "bottom" anchor uses the wrapper's own box, so without
+   this the anchor point and the pin's visual tip don't quite line up. */
+.pinWrapper {
+  position: relative;
+  width: 26px;
+  height: 31.38px;
+  cursor: pointer;
+}
+
+.pinWrapperSelected {
+  width: 34px;
+  height: 41.04px;
+}
+
+.pinShape {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: oklch(0.85 0.01 90);
+  border: 2px solid oklch(0.16 0.012 260);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.pinShapeSelected {
+  width: 34px;
+  height: 34px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 6px oklch(0.78 0.19 85 / 0.25);
+}
+
+.pinLabel {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: var(--color-text);
+  color: var(--color-bg-page);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.ghostPinWrapper {
+  position: relative;
+  width: 34px;
+  height: 41.04px;
+}
+
+.ghostPin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 3px dashed var(--color-accent);
+  background: oklch(0.78 0.19 85 / 0.2);
+}
+
+.youAreHere {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: oklch(0.7 0.17 240);
+  border: 3px solid oklch(0.96 0.01 90);
+  box-shadow: 0 0 0 7px oklch(0.7 0.17 240 / 0.25);
+}
+
+/* Floating card anchor on desktop/tablet; becomes a bottom sheet on phone. */
+.overlayAnchor {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+@media (max-width: 699px) {
+  .overlayAnchor {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+/* Phone-only: replaces the desktop "+Add Spot" nav button, since there's
+   no room for it in the two-row phone header. Hidden while a sheet is
+   open rather than repositioned above it, to avoid overlap. */
+.fabStack {
+  display: none;
+}
+
+@media (max-width: 699px) {
+  .fabStack {
+    display: flex;
+    position: absolute;
+    right: 14px;
+    bottom: 24px;
+    z-index: 999;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+}
+
+.fabButton {
+  height: 52px;
+  padding: 0 20px;
+  border-radius: 26px;
+  background: var(--color-accent);
+  color: var(--color-bg-nav);
+  font-family: var(--font-archivo-black);
+  font-weight: 800;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  border: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.locateButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-bg-nav);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.locateDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid oklch(0.7 0.17 240);
+}
