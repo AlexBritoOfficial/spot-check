@@ -19,6 +19,15 @@ const bookmarksByUsername: Record<string, string[]> = {
 };
 
 async function main() {
+  if (process.env.SEED_ALLOW_RESET !== "true") {
+    console.error(
+      "Refusing to run: this script deletes every Bookmark, Profile, Spot, and User " +
+        "before reseeding. Set SEED_ALLOW_RESET=true to confirm you want to wipe and " +
+        "reseed the database DATABASE_URL points at.",
+    );
+    process.exit(1);
+  }
+
   await prisma.bookmark.deleteMany();
   await prisma.profile.deleteMany();
   await prisma.spot.deleteMany();
