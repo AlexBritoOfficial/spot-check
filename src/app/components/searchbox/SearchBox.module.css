@@ -1,3 +1,8 @@
+.wrapper {
+  position: relative;
+  flex-grow: 1;
+}
+
 .searchBox {
   border: 1px solid transparent;
   border-radius: 9999px;
@@ -6,7 +11,6 @@
   align-items: center;
   padding: 10px 16px;
   gap: 8px;
-  flex-grow: 1;
 }
 
 .searchBox:focus-within {
@@ -32,4 +36,18 @@
 
 .icon {
   color: var(--color-text-muted);
+}
+
+.errorMessage {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--color-bg-nav);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  color: var(--color-danger);
+  z-index: 1001;
 }

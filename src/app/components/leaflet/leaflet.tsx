@@ -33,9 +33,21 @@ function RecenterMap({ center }: { center: { lat: number; lng: number } }) {
   return null;
 }
 
-export default function LeafLet() {
+function FlyToLocation({ location }: { location: { lat: number; lng: number } }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo([location.lat, location.lng], 13);
+  }, [map, location.lat, location.lng]);
+  return null;
+}
+
+interface LeafLetProps {
+  searchedLocation?: { lat: number; lng: number } | null;
+}
+
+export default function LeafLet({ searchedLocation }: LeafLetProps) {
   const { coords, status: geoStatus } = useGeolocation();
-  const effectiveLocation = coords ?? DEFAULT_CITY;
+  const effectiveLocation = searchedLocation ?? coords ?? DEFAULT_CITY;
   const { data: spots, isLoading, isError, error } = useSpots(effectiveLocation);
   const {
     mutate: createSpot,
@@ -140,7 +152,7 @@ export default function LeafLet() {
           }}
         />
 
-        {geoStatus === "granted" && coords && (
+        {!searchedLocation && geoStatus === "granted" && coords && (
           <>
             <RecenterMap center={coords} />
             <Marker
@@ -155,6 +167,8 @@ export default function LeafLet() {
             </Marker>
           </>
         )}
+
+        {searchedLocation && <FlyToLocation location={searchedLocation} />}
 
         {spotsFiltered.map((spot) => (
           <Marker

@@ -69,7 +69,7 @@ export async function deleteSpot(id: string): Promise<void> {
   }
 }
 
-async function extractErrorMessage(response: Response): Promise<string> {
+export async function extractErrorMessage(response: Response): Promise<string> {
   const body = await response.json().catch(() => null);
   const message =
     typeof body?.error === "string" ? body.error : JSON.stringify(body?.error);
