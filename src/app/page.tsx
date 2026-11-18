@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import SpotCheckNav from "./components/spot-check-nav-bar/SpotCheckNav.component";
-import LeafLet from "./components/leaflet/LeafletMap";
+import MapView from "./components/map/MapViewLoader";
 
 export default function Home() {
   const [searchedLocation, setSearchedLocation] = useState<{
@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       <SpotCheckNav onLocationFound={setSearchedLocation} />
-      <LeafLet searchedLocation={searchedLocation} />
+      <MapView searchedLocation={searchedLocation} />
     </div>
   );
 }

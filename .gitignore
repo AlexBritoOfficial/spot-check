@@ -46,3 +46,6 @@ next-env.d.ts
 # design handoff reference material — not app source, kept local only
 /design_handoff_spotcheck
 /SpotCheckWebApp.zip
+
+# copied from node_modules by postinstall — see package.json
+/public/maplibre-gl-worker.mjs
