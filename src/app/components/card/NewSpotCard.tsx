@@ -57,42 +57,51 @@ function NewSpotCard({
   return (
     // Card container — the whole "Add a new spot" / "Edit spot" panel
     <form className={styles.root} onSubmit={handleSubmit}>
-      {/* Header row: card title + close button */}
-      <div className={styles.firstrow}>
-        <label className={styles.cardTitle}>
-          {isEditing ? "EDIT SPOT" : "ADD A NEW SPOT"}
-        </label>
-        <CloseButton onClick={onClose} />
+      {/* Drag handle: phone-only visual, signals this is a sheet you can
+          swipe (see .dragHandle's media query) */}
+      <div className={styles.dragHandleRow}>
+        <div className={styles.dragHandle} />
       </div>
 
-      {/* Status hint: tells the user where the pin currently sits.
-          Repositioning isn't supported while editing, so the "click map
-          to move" hint only applies to a brand-new spot. */}
-      {!isEditing && (
-        <div className={styles.secondrow}>
-          <span className={styles.pinned}>
-            Pinned at clicked location · click map to move
-          </span>
+      {/* Scrollable body: everything except the Save/Cancel footer, which
+          becomes sticky on phone (see .actionRow's media query) */}
+      <div className={styles.scrollBody}>
+        {/* Header row: card title + close button */}
+        <div className={styles.firstrow}>
+          <label className={styles.cardTitle}>
+            {isEditing ? "EDIT SPOT" : "ADD A NEW SPOT"}
+          </label>
+          <CloseButton onClick={onClose} />
         </div>
-      )}
 
-      {/* Image area: placeholder box for the spot photo upload */}
-      <div className={styles.thirdrow}>
-        <label htmlFor="photo" className={styles.addimage}>
-          <span className={styles.addImageText}>+ ADD PHOTO</span>
-          <span className={styles.browseFile}>Browse file</span>
-          <input
-            id="photo"
-            type="file"
-            accept="image/*"
-            className={styles.hiddenFileInput}
-          />
-        </label>
-      </div>
+        {/* Status hint: tells the user where the pin currently sits.
+            Repositioning isn't supported while editing, so the "click map
+            to move" hint only applies to a brand-new spot. */}
+        {!isEditing && (
+          <div className={styles.secondrow}>
+            <span className={styles.pinned}>
+              Pinned at clicked location · click map to move
+            </span>
+          </div>
+        )}
 
-      {/* Form section: all the editable fields for the new spot */}
-      <div className={styles.fourthrow}>
-        <div className={styles.form}>
+        {/* Image area: placeholder box for the spot photo upload */}
+        <div className={styles.thirdrow}>
+          <label htmlFor="photo" className={styles.addimage}>
+            <span className={styles.addImageText}>+ ADD PHOTO</span>
+            <span className={styles.browseFile}>Browse file</span>
+            <input
+              id="photo"
+              type="file"
+              accept="image/*"
+              className={styles.hiddenFileInput}
+            />
+          </label>
+        </div>
+
+        {/* Form section: all the editable fields for the new spot */}
+        <div className={styles.fourthrow}>
+          <div className={styles.form}>
           {/* Field: Spot Name (free text) */}
           <h5 className={styles.spotName}>Spot Name</h5>
           <div className={styles.spotNameDiv}>
@@ -248,25 +257,28 @@ function NewSpotCard({
           <StarRating rating={initialSpot?.rating ?? 0} />
 
           {error && <p className={styles.errorMessage}>{error.message}</p>}
-
-          <div className={styles.actionRow}>
-            <Button
-              type="submit"
-              label={
-                isPending ? "Saving..." : isEditing ? "Save Changes" : "Save Spot"
-              }
-              variant="primary"
-              grow={1.3}
-            />
-            <Button
-              type="button"
-              label="Cancel"
-              variant="outline"
-              grow={1}
-              onClick={onClose}
-            />
           </div>
         </div>
+      </div>
+
+      {/* Footer: always visible, becomes sticky at the bottom of the
+          scroll area on phone (see .actionRow's media query) */}
+      <div className={styles.actionRow}>
+        <Button
+          type="submit"
+          label={
+            isPending ? "Saving..." : isEditing ? "Save Changes" : "Save Spot"
+          }
+          variant="primary"
+          grow={1.3}
+        />
+        <Button
+          type="button"
+          label="Cancel"
+          variant="outline"
+          grow={1}
+          onClick={onClose}
+        />
       </div>
     </form>
   );

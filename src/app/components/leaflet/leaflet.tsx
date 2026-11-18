@@ -15,6 +15,7 @@ import { useCreateSpot } from "@/app/lib/useCreateSpot";
 import { useUpdateSpot } from "@/app/lib/useUpdateSpot";
 import { useDeleteSpot } from "@/app/lib/useDeleteSpot";
 import { useGeolocation } from "@/app/lib/useGeolocation";
+import styles from "./leaflet.module.css";
 
 const DEFAULT_CITY = { lat: 42.361145, lng: -71.057083 };
 
@@ -25,11 +26,19 @@ function MapEvents({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
   return null;
 }
 
-function RecenterMap({ center }: { center: { lat: number; lng: number } }) {
+function RecenterMap({
+  center,
+  nonce,
+}: {
+  center: { lat: number; lng: number };
+  nonce: number;
+}) {
   const map = useMap();
   useEffect(() => {
     map.setView([center.lat, center.lng]);
-  }, [map, center.lat, center.lng]);
+    // nonce lets the phone "locate me" button re-trigger this even when
+    // center hasn't changed (e.g. the user panned away and wants to return).
+  }, [map, center.lat, center.lng, nonce]);
   return null;
 }
 
@@ -66,6 +75,7 @@ export default function LeafLet({ searchedLocation }: LeafLetProps) {
   } = useDeleteSpot();
 
   const [spotsFiltered, setSpotsFiltered] = useState<Spot[]>([]);
+  const [recenterNonce, setRecenterNonce] = useState(0);
   const [showNewSpotCard, setShowNewSpotCard] = useState(false);
   const [showSpotDetailCard, setShowSpotDetailCard] = useState(false);
   const [showEditSpotCard, setShowEditSpotCard] = useState(false);
@@ -154,7 +164,7 @@ export default function LeafLet({ searchedLocation }: LeafLetProps) {
 
         {!searchedLocation && geoStatus === "granted" && coords && (
           <>
-            <RecenterMap center={coords} />
+            <RecenterMap center={coords} nonce={recenterNonce} />
             <Marker
               position={[coords.lat, coords.lng]}
               icon={L.icon({
@@ -192,16 +202,35 @@ export default function LeafLet({ searchedLocation }: LeafLetProps) {
         ))}
       </MapContainer>
 
-      {/* Card positioned absolutely on top */}
+      {/* Phone only: replaces the desktop "+Add Spot" nav button (see
+          SpotCheckNav.module.css). Hidden while any sheet is open. */}
+      {!showNewSpotCard && !showEditSpotCard && !showSpotDetailCard && (
+        <div className={styles.fabStack}>
+          <button
+            type="button"
+            className={styles.locateButton}
+            aria-label="Center on my location"
+            onClick={() => setRecenterNonce((n) => n + 1)}
+          >
+            <span className={styles.locateDot} />
+          </button>
+          <button
+            type="button"
+            className={styles.fabButton}
+            onClick={() => {
+              setNewSpotLocation(effectiveLocation);
+              setShowNewSpotCard(true);
+            }}
+          >
+            + Add spot
+          </button>
+        </div>
+      )}
+
+      {/* Card positioned absolutely on top (floating card on desktop/tablet,
+          bottom sheet on phone — see leaflet.module.css) */}
       {showNewSpotCard && newSpotLocation && (
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "20px",
-            zIndex: 1000,
-          }}
-        >
+        <div className={styles.overlayAnchor}>
           <NewSpotCard
             onClose={() => {
               setShowNewSpotCard(false);
@@ -216,14 +245,7 @@ export default function LeafLet({ searchedLocation }: LeafLetProps) {
       )}
 
       {showEditSpotCard && spot && (
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "20px",
-            zIndex: 1000,
-          }}
-        >
+        <div className={styles.overlayAnchor}>
           <NewSpotCard
             onClose={() => setShowEditSpotCard(false)}
             location={spot.latLng}
@@ -236,14 +258,7 @@ export default function LeafLet({ searchedLocation }: LeafLetProps) {
       )}
 
       {showSpotDetailCard && !showEditSpotCard && spot && (
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "20px",
-            zIndex: 1000,
-          }}
-        >
+        <div className={styles.overlayAnchor}>
           <SpotDetailCard
             spot={spot}
             onEdit={() => setShowEditSpotCard(true)}

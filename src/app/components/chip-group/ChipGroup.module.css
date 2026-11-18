@@ -33,3 +33,14 @@
   background: var(--color-accent);
   color: var(--color-bg-nav);
 }
+
+@media (max-width: 699px) {
+  .row {
+    flex-wrap: nowrap;
+  }
+
+  .pill {
+    height: 36px;
+    padding: 0 14px;
+  }
+}

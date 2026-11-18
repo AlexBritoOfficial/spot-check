@@ -1,8 +1,20 @@
 .root {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 8px 16px;
   padding: 12px 20px;
-  overflow-x: auto;
   background: var(--color-bg-page);
   border-bottom: 1px solid var(--color-border);
+}
+
+/* Phone: one continuous horizontally-scrollable strip instead of wrapping
+   onto extra rows, which would eat too much vertical space on a short
+   viewport. */
+@media (max-width: 699px) {
+  .root {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 10px 12px;
+    gap: 8px;
+  }
 }

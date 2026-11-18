@@ -42,3 +42,7 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# design handoff reference material — not app source, kept local only
+/design_handoff_spotcheck
+/SpotCheckWebApp.zip
