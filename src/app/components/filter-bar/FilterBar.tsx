@@ -20,9 +20,9 @@ function FilterBar({ spots, setSpotsFiltered }: FilterBarProps) {
   useEffect(() => {
     const filteredSpots = spots.filter((spot) => {
       const matchesType = spotTypeList.includes(spot.spotType);
-      const matchesFeature = spot.features.some((feature) =>
-        featureList.includes(feature),
-      );
+      const matchesFeature =
+        spot.features.length === 0 ||
+        spot.features.some((feature) => featureList.includes(feature));
       return matchesType && matchesFeature;
     });
 

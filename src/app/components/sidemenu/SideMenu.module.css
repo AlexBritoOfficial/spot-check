@@ -9,7 +9,7 @@
   width: 320px;
   max-width: 85vw;
   border-right: 1px solid var(--color-border);
-  z-index: 1000;
+  z-index: 1300;
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
 }

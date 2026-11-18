@@ -3,7 +3,7 @@ import LeafLet from "./components/leaflet/LeafletMap";
 
 export default function Home() {
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       <SpotCheckNav />
       <LeafLet />
     </div>

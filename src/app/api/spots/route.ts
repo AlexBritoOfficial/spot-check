@@ -1,4 +1,5 @@
 import { prisma } from "@/app/lib/prisma";
+import { nearbySpotsQuerySchema } from "@/app/lib/nearbySpotsQuerySchema";
 import { spotSchema } from "@/app/lib/spotSchema";
 import {
   Difficulty,
@@ -7,7 +8,9 @@ import {
   Status,
 } from "@/generated/prisma/enums";
 import { Spot } from "@/types/spot";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+const DEFAULT_RADIUS_METERS = 8000;
 
 type RawSpotRow = {
   id: number;
@@ -28,12 +31,67 @@ type RawSpotRow = {
   createdAt: string;
 };
 
-export async function GET() {
-  const rawSpots = await prisma.$queryRaw<RawSpotRow[]>`
+type RawNearbySpotRow = RawSpotRow & { distanceMeters: number };
+
+function reshapeSpot({
+  spotId,
+  lat,
+  lng,
+  ...rest
+}: RawSpotRow | RawNearbySpotRow): Spot {
+  return { ...rest, id: spotId, latLng: { lat, lng } };
+}
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const result = nearbySpotsQuerySchema.safeParse({
+    lat: searchParams.get("lat") ?? undefined,
+    lng: searchParams.get("lng") ?? undefined,
+    radius: searchParams.get("radius") ?? undefined,
+  });
+
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.flatten() },
+      { status: 400 },
+    );
+  }
+
+  const { lat, lng, radius } = result.data;
+
+  try {
+    if (lat !== undefined && lng !== undefined) {
+      const rawSpots = await prisma.$queryRaw<RawNearbySpotRow[]>`
         SELECT  "id",
                 "name",
-                "spotId", 
-                "city", 
+                "spotId",
+                "city",
+                "spotType",
+                "description",
+                "features"::text[] AS features,
+                "difficulty",
+                "isSkateable",
+                "isPublic",
+                "rating",
+                ST_X("latLng"::geometry) AS lng,
+                ST_Y("latLng"::geometry) AS lat,
+                "photo",
+                "status",
+                "createdAt",
+                ST_Distance("latLng", ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography) AS "distanceMeters"
+        FROM "Spot"
+        WHERE ST_DWithin("latLng", ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography, ${radius ?? DEFAULT_RADIUS_METERS})
+        ORDER BY "distanceMeters" ASC
+      `;
+
+      return NextResponse.json(rawSpots.map(reshapeSpot));
+    }
+
+    const rawSpots = await prisma.$queryRaw<RawSpotRow[]>`
+        SELECT  "id",
+                "name",
+                "spotId",
+                "city",
                 "spotType",
                 "description",
                 "features"::text[] AS features,
@@ -47,16 +105,17 @@ export async function GET() {
                 "status",
                 "createdAt"
 
-        FROM "Spot" 
+        FROM "Spot"
     `;
 
-  const spots: Spot[] = rawSpots.map(({ spotId, lat, lng, ...rest }) => ({
-    ...rest,
-    id: spotId,
-    latLng: { lat, lng },
-  }));
-
-  return NextResponse.json(spots);
+    return NextResponse.json(rawSpots.map(reshapeSpot));
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to fetch spots" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(request: Request) {

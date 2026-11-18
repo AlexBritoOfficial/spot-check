@@ -23,4 +23,5 @@ export type Spot = {
   photo?: string;
   status: Status;
   createdAt: string;
+  distanceMeters?: number;
 };

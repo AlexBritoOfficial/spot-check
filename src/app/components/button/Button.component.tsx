@@ -2,7 +2,7 @@
 
 import styles from "./Button.module.css";
 
-type ButtonVariant = "primary" | "outline";
+type ButtonVariant = "primary" | "outline" | "danger";
 
 type ButtonProps = {
   label: string;
