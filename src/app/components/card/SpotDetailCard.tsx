@@ -18,6 +18,11 @@ interface SpotDetailCardProps {
 function SpotDetailCard({ spot, onEdit, onDelete }: SpotDetailCardProps) {
   return (
     <div className={styles.root}>
+      {/* Drag handle: phone-only visual, signals this is a sheet you can
+          swipe (see .dragHandle's media query) */}
+      <div className={styles.dragHandleRow}>
+        <div className={styles.dragHandle} />
+      </div>
       {/* Photo area: read-only placeholder, no upload affordance */}
       <div className={styles.photo}>
         <span className={styles.photoLabel}>SPOT PHOTO</span>

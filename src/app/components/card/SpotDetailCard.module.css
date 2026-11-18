@@ -1,11 +1,42 @@
 .root {
   display: flex;
   flex-direction: column;
-  width: 380px;
+  width: min(380px, calc(100vw - 40px));
   border-radius: 16px;
   background-color: var(--color-bg-nav);
   border: 1px solid var(--color-border);
   overflow: hidden; /* clips the photo's square corners to the card's rounded ones */
+}
+
+.dragHandleRow {
+  display: none;
+}
+
+@media (max-width: 699px) {
+  .root {
+    width: 100%;
+    max-height: 70vh;
+    border-radius: 18px 18px 0 0;
+    overflow-y: auto;
+  }
+
+  .dragHandleRow {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 4px;
+    flex-shrink: 0;
+  }
+
+  .dragHandle {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: oklch(0.4 0.02 260);
+  }
+
+  .photo {
+    height: 100px;
+  }
 }
 
 /* Read-only placeholder — diagonal stripe pattern, no upload affordance */

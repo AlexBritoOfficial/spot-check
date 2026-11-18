@@ -6,6 +6,7 @@
   font-family: var(--font-archivo-black);
   font-size: 13.5px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 /* Filled/gold — Add Spot, Save spot, Directions */

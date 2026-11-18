@@ -10,6 +10,7 @@ type ButtonProps = {
   grow?: number;
   type?: "button" | "submit";
   onClick?: () => void;
+  className?: string;
 };
 
 function Button({
@@ -18,12 +19,13 @@ function Button({
   grow,
   type,
   onClick,
+  className,
 }: ButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`${styles.button} ${styles[variant]}`}
+      className={`${styles.button} ${styles[variant]} ${className ?? ""}`}
       style={grow !== undefined ? { flex: grow } : undefined}
     >
       {label}

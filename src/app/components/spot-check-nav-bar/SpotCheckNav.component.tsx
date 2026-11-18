@@ -46,9 +46,21 @@ export default function SpotCheckNav({ onLocationFound }: SpotCheckNavProps) {
             <span className={styles.white}>SPOT</span>
             <span className={styles.gold}>CHECK</span>
           </div>
-          <SearchBox onLocationFound={onLocationFound} />
         </div>
-        <Button label="+ Add Spot" variant="primary" />
+        <button
+          type="button"
+          className={styles.avatarButton}
+          onClick={() => setMenuOpen(true)}
+          aria-label="Account menu"
+        >
+          {signedIn ? "U" : ""}
+        </button>
+        <SearchBox onLocationFound={onLocationFound} />
+        <Button
+          label="+ Add Spot"
+          variant="primary"
+          className={styles.addSpotButton}
+        />
       </nav>
 
       <SideMenu

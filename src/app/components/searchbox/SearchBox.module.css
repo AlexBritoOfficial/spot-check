@@ -1,6 +1,7 @@
 .wrapper {
   position: relative;
-  flex-grow: 1;
+  flex: 1 1 200px;
+  min-width: 0;
 }
 
 .searchBox {
@@ -24,6 +25,7 @@
   color: var(--color-text);
   font-family: var(--font-archivo-black);
   flex: 1;
+  min-width: 0;
 }
 
 .input::placeholder {
@@ -36,6 +38,21 @@
 
 .icon {
   color: var(--color-text-muted);
+}
+
+@media (max-width: 699px) {
+  .wrapper {
+    flex-basis: 100%;
+  }
+
+  .searchBox {
+    height: 44px;
+    padding: 0 14px;
+  }
+
+  .input {
+    font-size: 15px;
+  }
 }
 
 .errorMessage {
