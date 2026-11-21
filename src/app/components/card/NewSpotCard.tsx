@@ -5,6 +5,7 @@ import CloseButton from "../button/closebutton/CloseButton.component";
 import StarRating from "../starrating/StarRating";
 import styles from "./NewSpotCard.module.css";
 import { Difficulty, Feature, Spot, SpotType } from "@/types/spot";
+import { useUploadPhoto } from "@/app/lib/useUploadPhoto";
 import { SubmitEvent } from "react";
 
 interface NewSpotCardProps {
@@ -25,8 +26,9 @@ function NewSpotCard({
   initialSpot,
 }: NewSpotCardProps) {
   const isEditing = initialSpot !== undefined;
+  const uploadPhoto = useUploadPhoto();
 
-  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
@@ -36,6 +38,16 @@ function NewSpotCard({
     const difficulty = formData.get("difficulty") as Difficulty;
     const description = formData.get("description") as string;
     const visibility = formData.get("visibility") as string;
+    const photoFile = formData.get("browseFile");
+
+    let photo = initialSpot?.photo ?? "";
+    if (photoFile instanceof File && photoFile.size > 0) {
+      try {
+        photo = await uploadPhoto.mutateAsync(photoFile);
+      } catch {
+        return;
+      }
+    }
 
     onSave({
       name,
@@ -48,7 +60,7 @@ function NewSpotCard({
       isPublic: visibility !== "private",
       rating: initialSpot?.rating ?? 0,
       latLng: location,
-      photo: initialSpot?.photo ?? "",
+      photo,
       status: initialSpot?.status ?? "active",
       createdAt: initialSpot?.createdAt ?? new Date().toISOString(),
     });
@@ -91,6 +103,7 @@ function NewSpotCard({
             <span className={styles.addImageText}>+ ADD PHOTO</span>
             <span className={styles.browseFile}>Browse file</span>
             <input
+              name="browseFile"
               id="photo"
               type="file"
               accept="image/*"
@@ -102,161 +115,165 @@ function NewSpotCard({
         {/* Form section: all the editable fields for the new spot */}
         <div className={styles.fourthrow}>
           <div className={styles.form}>
-          {/* Field: Spot Name (free text) */}
-          <h5 className={styles.spotName}>Spot Name</h5>
-          <div className={styles.spotNameDiv}>
-            <input
-              name="name"
-              placeholder="e.g Riverside Bowl"
-              type="text"
-              defaultValue={initialSpot?.name}
-              className={styles.spotNameInput}
-              aria-label="Spot Name"
-              required
-            />
-          </div>
-
-          {/* Field: Spot Type (single-select radio group, styled as pills) */}
-          <h5 className={styles.spotType}>Spot Type</h5>
-          <div className={styles.pillRow}>
-            {/* Each label is a pill; the radio inside is visually hidden.
-                Shared name="spotType" makes them mutually exclusive. */}
-            <label className={styles.pill}>
+            {/* Field: Spot Name (free text) */}
+            <h5 className={styles.spotName}>Spot Name</h5>
+            <div className={styles.spotNameDiv}>
               <input
-                type="radio"
-                name="spotType"
-                value="park"
-                defaultChecked={initialSpot?.spotType === "park"}
+                name="name"
+                placeholder="e.g Riverside Bowl"
+                type="text"
+                defaultValue={initialSpot?.name}
+                className={styles.spotNameInput}
+                aria-label="Spot Name"
                 required
               />
-              PARK
-            </label>
-            <label className={styles.pill}>
-              <input
-                type="radio"
-                name="spotType"
-                value="street"
-                defaultChecked={initialSpot?.spotType === "street"}
-              />
-              STREET
-            </label>
-            <label className={styles.pill}>
-              <input
-                type="radio"
-                name="spotType"
-                value="diy"
-                defaultChecked={initialSpot?.spotType === "diy"}
-              />
-              DIY
-            </label>
-          </div>
-          <h5 className={styles.spotType}>Spot Features</h5>
-          <div className={styles.pillRow}>
-            {/* Each label is a pill; the checkbox inside is visually hidden.
+            </div>
+
+            {/* Field: Spot Type (single-select radio group, styled as pills) */}
+            <h5 className={styles.spotType}>Spot Type</h5>
+            <div className={styles.pillRow}>
+              {/* Each label is a pill; the radio inside is visually hidden.
+                Shared name="spotType" makes them mutually exclusive. */}
+              <label className={styles.pill}>
+                <input
+                  type="radio"
+                  name="spotType"
+                  value="park"
+                  defaultChecked={initialSpot?.spotType === "park"}
+                  required
+                />
+                PARK
+              </label>
+              <label className={styles.pill}>
+                <input
+                  type="radio"
+                  name="spotType"
+                  value="street"
+                  defaultChecked={initialSpot?.spotType === "street"}
+                />
+                STREET
+              </label>
+              <label className={styles.pill}>
+                <input
+                  type="radio"
+                  name="spotType"
+                  value="diy"
+                  defaultChecked={initialSpot?.spotType === "diy"}
+                />
+                DIY
+              </label>
+            </div>
+            <h5 className={styles.spotType}>Spot Features</h5>
+            <div className={styles.pillRow}>
+              {/* Each label is a pill; the checkbox inside is visually hidden.
                 These are NOT mutually exclusive — a spot can have many features. */}
-            <label className={styles.pill}>
-              <input
-                type="checkbox"
-                name="spotFeature"
-                value="ledge"
-                defaultChecked={initialSpot?.features.includes("ledge")}
-              />
-              LEDGE
-            </label>
-            <label className={styles.pill}>
-              <input
-                type="checkbox"
-                name="spotFeature"
-                value="rail"
-                defaultChecked={initialSpot?.features.includes("rail")}
-              />
-              RAIL
-            </label>
-            <label className={styles.pill}>
-              <input
-                type="checkbox"
-                name="spotFeature"
-                value="plaza"
-                defaultChecked={initialSpot?.features.includes("plaza")}
-              />
-              PLAZA
-            </label>
-            <label className={styles.pill}>
-              <input
-                type="checkbox"
-                name="spotFeature"
-                value="stairs"
-                defaultChecked={initialSpot?.features.includes("stairs")}
-              />
-              STAIRS
-            </label>
-            <label className={styles.pill}>
-              <input
-                type="checkbox"
-                name="spotFeature"
-                value="skatepark"
-                defaultChecked={initialSpot?.features.includes("skatepark")}
-              />
-              SKATEPARK
-            </label>
-          </div>
+              <label className={styles.pill}>
+                <input
+                  type="checkbox"
+                  name="spotFeature"
+                  value="ledge"
+                  defaultChecked={initialSpot?.features.includes("ledge")}
+                />
+                LEDGE
+              </label>
+              <label className={styles.pill}>
+                <input
+                  type="checkbox"
+                  name="spotFeature"
+                  value="rail"
+                  defaultChecked={initialSpot?.features.includes("rail")}
+                />
+                RAIL
+              </label>
+              <label className={styles.pill}>
+                <input
+                  type="checkbox"
+                  name="spotFeature"
+                  value="plaza"
+                  defaultChecked={initialSpot?.features.includes("plaza")}
+                />
+                PLAZA
+              </label>
+              <label className={styles.pill}>
+                <input
+                  type="checkbox"
+                  name="spotFeature"
+                  value="stairs"
+                  defaultChecked={initialSpot?.features.includes("stairs")}
+                />
+                STAIRS
+              </label>
+              <label className={styles.pill}>
+                <input
+                  type="checkbox"
+                  name="spotFeature"
+                  value="skatepark"
+                  defaultChecked={initialSpot?.features.includes("skatepark")}
+                />
+                SKATEPARK
+              </label>
+            </div>
 
-          {/** Difficulty Dropbox */}
-          <label htmlFor="difficulty" className={styles.spotType}>
-            Difficulty
-          </label>
-          <select
-            id="difficulty"
-            name="difficulty"
-            className={styles.select}
-            defaultValue={initialSpot?.difficulty}
-            required
-          >
-            <option value="beginner">Beginner </option>
-            <option value="intermediate">Intermediate </option>
-            <option value="advanced">Advanced</option>
-            <option value="pro">Pro </option>
-          </select>
-
-          {/** Visibility */}
-          <h5 className={styles.spotType}>Visibility</h5>
-          <div className={styles.pillRow}>
-            <label className={styles.pill}>
-              <input
-                type="radio"
-                name="visibility"
-                value="public"
-                defaultChecked={initialSpot?.isPublic ?? true}
-              />
-              PUBLIC
+            {/** Difficulty Dropbox */}
+            <label htmlFor="difficulty" className={styles.spotType}>
+              Difficulty
             </label>
-            <label className={styles.pill}>
-              <input
-                type="radio"
-                name="visibility"
-                value="private"
-                defaultChecked={initialSpot?.isPublic === false}
-              />
-              PRIVATE
-            </label>
-          </div>
+            <select
+              id="difficulty"
+              name="difficulty"
+              className={styles.select}
+              defaultValue={initialSpot?.difficulty}
+              required
+            >
+              <option value="beginner">Beginner </option>
+              <option value="intermediate">Intermediate </option>
+              <option value="advanced">Advanced</option>
+              <option value="pro">Pro </option>
+            </select>
 
-          {/*** Description */}
-          <label className={styles.spotType}>Description</label>
-          <textarea
-            className={styles.textarea}
-            name="description"
-            rows={3}
-            defaultValue={initialSpot?.description}
-            placeholder="What makes this spot worth skating?"
-          ></textarea>
+            {/** Visibility */}
+            <h5 className={styles.spotType}>Visibility</h5>
+            <div className={styles.pillRow}>
+              <label className={styles.pill}>
+                <input
+                  type="radio"
+                  name="visibility"
+                  value="public"
+                  defaultChecked={initialSpot?.isPublic ?? true}
+                />
+                PUBLIC
+              </label>
+              <label className={styles.pill}>
+                <input
+                  type="radio"
+                  name="visibility"
+                  value="private"
+                  defaultChecked={initialSpot?.isPublic === false}
+                />
+                PRIVATE
+              </label>
+            </div>
 
-          {/* Rating: read-only display here — there's no rating input yet,
+            {/*** Description */}
+            <label className={styles.spotType}>Description</label>
+            <textarea
+              className={styles.textarea}
+              name="description"
+              rows={3}
+              defaultValue={initialSpot?.description}
+              placeholder="What makes this spot worth skating?"
+            ></textarea>
+
+            {/* Rating: read-only display here — there's no rating input yet,
               so an existing spot's rating just carries through unedited. */}
-          <h5 className={styles.spotType}>Rating</h5>
-          <StarRating rating={initialSpot?.rating ?? 0} />
+            <h5 className={styles.spotType}>Rating</h5>
+            <StarRating rating={initialSpot?.rating ?? 0} />
 
-          {error && <p className={styles.errorMessage}>{error.message}</p>}
+            {(uploadPhoto.error ?? error) && (
+              <p className={styles.errorMessage}>
+                {(uploadPhoto.error ?? error)?.message}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -267,7 +284,13 @@ function NewSpotCard({
         <Button
           type="submit"
           label={
-            isPending ? "Saving..." : isEditing ? "Save Changes" : "Save Spot"
+            uploadPhoto.isPending
+              ? "Uploading photo..."
+              : isPending
+                ? "Saving..."
+                : isEditing
+                  ? "Save Changes"
+                  : "Save Spot"
           }
           variant="primary"
           grow={1.3}
